@@ -224,8 +224,8 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 ## Checkpoint B: everything local is done
 
-- [ ] Phase 1 commands pass; `pnpm lint:workflows` reports zero findings
-- [ ] Every third-party action pinned by SHA
+- [x] Phase 1 commands pass; `pnpm lint:workflows` reports zero findings
+- [x] Every third-party action pinned by SHA
 - [ ] Review with you before anything goes to GitHub or npm
 
 ---
