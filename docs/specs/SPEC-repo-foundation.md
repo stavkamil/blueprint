@@ -68,9 +68,9 @@ folders.
 ```
 blueprint/
 ├── src/
-│   ├── index.ts             → entry point (bin "blueprint"): parses argv, dispatches to commands
-│   ├── index.spec.ts
+│   ├── index.ts             → entry point (bin "blueprint"): three lines that call `run` and set the exit code
 │   ├── commands/            → one file per command; composes modules (entry element)
+│   │   └── main.ts          → `run(argv, io)`: parses flags, dispatches commands, returns the exit code (tested in main.spec.ts)
 │   ├── modules/             → (reserved: doctor, scaffold) one folder per domain; modules never import each other
 │   ├── utils/               → pure shared helpers (version, errors, output; later: template rendering)
 │   └── lib/                 → system clients (process runner; later: gh, Keychain)
@@ -118,7 +118,12 @@ import { BlueprintError } from "./errors.ts";
 /** Reads blueprint's own version so `--version` and generated files always match the installed package. */
 export const readPackageVersion = async (packageJsonUrl: URL): Promise<string> => {
   const pkg: unknown = JSON.parse(await readFile(packageJsonUrl, "utf8"));
-  if (typeof pkg !== "object" || pkg === null || !("version" in pkg) || typeof pkg.version !== "string") {
+  if (
+    typeof pkg !== "object" ||
+    pkg === null ||
+    !("version" in pkg) ||
+    typeof pkg.version !== "string"
+  ) {
     throw new BlueprintError(
       "Could not read the blueprint version.",
       "Reinstall the package: pnpm dlx @stavkamil/blueprint@latest --version",
@@ -164,7 +169,7 @@ export const readPackageVersion = async (packageJsonUrl: URL): Promise<string> =
 ## One-time setup (done by you, documented in `docs/maintainer-setup.md`)
 
 1. **Repo.** Create the public GitHub repo `stavkamil/blueprint` and push the first commit.
-2. **Release app.** Create the GitHub App `blueprint-release` (Contents and Pull requests: read & write), install it on all repositories, and save `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` as secrets in this repo. The same app serves projects created with `--release` (see `new-project-skill`'s setup guide).
+2. **Release app.** Create the GitHub App `blueprint-release` (Contents and Pull requests: read & write), install it on all repositories, and save `RELEASE_APP_CLIENT_ID` and `RELEASE_APP_PRIVATE_KEY` as secrets in this repo. The same app serves projects created with `--release` (see `new-project-skill`'s setup guide).
 3. **npm.** Log in (`npm login`, 2FA on). Publish `0.0.0` once by hand to claim the name. Then add a trusted publisher (repo `stavkamil/blueprint`, workflow `release.yml`) and set "Require two-factor authentication and disallow tokens". The first trusted publish (1.0.0) must happen within 2 days of adding the publisher.
 4. **Ruleset.** `gh api repos/stavkamil/blueprint/rulesets --method POST --input .github/rulesets/main.json`.
 5. **Merge settings.** In repo settings, allow squash merges only, with the PR title as the commit title.

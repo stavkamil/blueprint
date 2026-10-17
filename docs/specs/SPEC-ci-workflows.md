@@ -12,12 +12,14 @@ project immediately, and project PRs can't change the CI logic because it doesn'
 reading results on GitHub Mobile.
 
 **Scope:**
+
 - three reusable workflows (`reusable-checks`, `reusable-ai-review`, `reusable-release`)
 - the composite actions they share
 - the interface callers use
 - the security posture of all of them
 
 **Out of scope:**
+
 - writing the caller files into projects (`project-template`)
 - the rulesets and the required-check setting (`cli-doctor`)
 - blueprint's own `ci.yml` and `release.yml` (`repo-foundation`)
@@ -46,21 +48,23 @@ reading results on GitHub Mobile.
 All live in `stavkamil/blueprint/.github/workflows/` and are triggered only by `workflow_call`. The `reusable-` prefix
 keeps them apart from blueprint's own `ci.yml`, `ai-review.yml` and `release.yml`.
 
-| Workflow | What it runs | Inputs | Secrets (passed **explicitly**, never `inherit`) | Job permissions |
-|---|---|---|---|---|
-| `reusable-checks.yml` | Jobs: `quality` (`pnpm lint`, `pnpm typecheck`, `pnpm test` with coverage, `pnpm build`), `pr-title` (PR events only), `gitleaks` (the PR's commit range), `doctor` (non-blocking), and the aggregate `ci-ok` | `working-directory` (default `.`), `doctor` (boolean, default `true`) | none | `contents: read`; `pull-requests: read` for `pr-title` |
-| `reusable-ai-review.yml` | claude-code-action with the code-review plugin, posting inline comments and a summary | `model` (default: Claude Code's default), `max-turns` (default 30) | `CLAUDE_CODE_OAUTH_TOKEN` | `contents: read`, `pull-requests: read`, `issues: read`, `id-token: write` (the Claude GitHub App posts the comments) |
-| `reusable-release.yml` | `actions/create-github-app-token` → release-please | `release-type` (default `node`) | `RELEASE_APP_ID`, `RELEASE_APP_PRIVATE_KEY` | `contents: read`; writes go through the app token |
+| Workflow                 | What it runs                                                                                                                                                                                                  | Inputs                                                                | Secrets (passed **explicitly**, never `inherit`)   | Job permissions                                                                                                       |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `reusable-checks.yml`    | Jobs: `quality` (`pnpm lint`, `pnpm typecheck`, `pnpm test` with coverage, `pnpm build`), `pr-title` (PR events only), `gitleaks` (the PR's commit range), `doctor` (non-blocking), and the aggregate `ci-ok` | `working-directory` (default `.`), `doctor` (boolean, default `true`) | none                                               | `contents: read`; `pull-requests: read` for `pr-title`                                                                |
+| `reusable-ai-review.yml` | claude-code-action with the code-review plugin, posting inline comments and a summary                                                                                                                         | `model` (default: Claude Code's default), `max-turns` (default 30)    | `CLAUDE_CODE_OAUTH_TOKEN`                          | `contents: read`, `pull-requests: read`, `issues: read`, `id-token: write` (the Claude GitHub App posts the comments) |
+| `reusable-release.yml`   | `actions/create-github-app-token` → release-please                                                                                                                                                            | `release-type` (default `node`)                                       | `RELEASE_APP_CLIENT_ID`, `RELEASE_APP_PRIVATE_KEY` | `contents: read`; writes go through the app token                                                                     |
 
 **Shared setup** lives in composite actions in the blueprint repo, referenced by full path at the same major, e.g.
 `stavkamil/blueprint/.github/actions/setup@v1`. Inside a called workflow, a relative `./.github/actions` path would
 resolve against the caller's checkout.
+
 - **`setup`:** checkout (`persist-credentials: false`), `pnpm/action-setup` (version from `packageManager`), `actions/setup-node` (version from `.nvmrc`, pnpm cache), `pnpm install --frozen-lockfile`.
 - **`gitleaks`:** downloads a pinned gitleaks release, verifies its checksum, and scans the PR's commit range. This works for personal and organization accounts alike, with no license key.
 
 **`doctor` job:** runs `pnpm exec blueprint doctor --ci` when the `doctor` input is true. `--ci` always exits 0 and reports problems as annotations, so the job never shows red. It is **not** a dependency of `ci-ok`. Blueprint itself passes `doctor: false`.
 
 **`ci-ok` aggregation:**
+
 - The job id **and** `name:` are both `ci-ok`, so the check is exactly `ci / ci-ok`.
 - It depends on `quality`, `pr-title` and `gitleaks` (not `doctor`) and runs with `if: always()`.
 - It fails if any dependency failed or was cancelled. Skipped jobs (like `pr-title` on a push to `main`) count as passing.
@@ -118,7 +122,7 @@ jobs:
     uses: stavkamil/blueprint/.github/workflows/reusable-release.yml@v1
     permissions: { contents: read }
     secrets:
-      RELEASE_APP_ID: ${{ secrets.RELEASE_APP_ID }}
+      RELEASE_APP_CLIENT_ID: ${{ secrets.RELEASE_APP_CLIENT_ID }}
       RELEASE_APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 ```
 
@@ -134,6 +138,7 @@ name in the ruleset.
   - `Bash(gh pr view:*)`, `Bash(gh pr diff:*)`, `Bash(gh pr comment:*)`
 
   The plugin's command file is re-checked when its pin is updated.
+
 - **What it judges against:**
   - The plugin reads `CLAUDE.md`. Every blueprint project's `CLAUDE.md` is `@AGENTS.md`, whose standards block points reviewers at `REVIEW.md` and `docs/standards/` (see SPEC-standards).
   - claude-code-action restores `CLAUDE.md` and `.claude/` from the base branch. `AGENTS.md` and `REVIEW.md` come from the PR itself. That's acceptable because only users with write access can trigger the review.
@@ -164,6 +169,7 @@ pnpm lint:workflows       # actionlint + zizmor over .github/
 ```
 
 Workflows run on GitHub. Blueprint's own workflows call these locally:
+
 - `ci.yml` → `./.github/workflows/reusable-checks.yml` with `doctor: false`, plus blueprint's own `workflows-lint` job and its own top-level `ci-ok` (repo-foundation)
 - `ai-review.yml` → `./.github/workflows/reusable-ai-review.yml`, with the same triggers as the project caller
 

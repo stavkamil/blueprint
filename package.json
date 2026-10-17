@@ -1,0 +1,53 @@
+{
+  "name": "@stavkamil/blueprint",
+  "version": "0.0.0",
+  "description": "Sets up an agent-first SDLC and CI/CD environment for new TypeScript projects.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stavkamil/blueprint.git"
+  },
+  "homepage": "https://github.com/stavkamil/blueprint#readme",
+  "bugs": {
+    "url": "https://github.com/stavkamil/blueprint/issues"
+  },
+  "type": "module",
+  "bin": {
+    "blueprint": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "packageManager": "pnpm@12.11.2",
+  "scripts": {
+    "dev": "node src/index.ts",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write . && eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "build": "tsc -p tsconfig.build.json",
+    "smoke": "pnpm build && node scripts/smoke.ts",
+    "prepare": "lefthook install",
+    "lint:workflows": "actionlint && zizmor --offline .github/"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.2",
+    "@vitest/coverage-v8": "^5.0.5",
+    "eslint": "^10.13.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^65.3.8",
+    "lefthook": "^2.2.2",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^5.0.5"
+  }
+}

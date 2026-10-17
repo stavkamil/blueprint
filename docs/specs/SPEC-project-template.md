@@ -15,6 +15,7 @@ agent that later works in the project.
 **Scope:** template layers, their file contents, the render function's interface, the Next.js overlay, and file
 ownership.
 **Out of scope:**
+
 - running `create-next-app`, git and GitHub setup (`cli-new`)
 - checking and fixing (`cli-doctor`)
 - the content of `docs/standards/` (`standards`)
@@ -41,16 +42,17 @@ ownership.
 
 ## Layers
 
-| Layer | Applied when | Contents |
-|---|---|---|
-| `base` | always | Agent files, quality configs, CI callers, Claude settings, docs, skeleton shared by both types |
-| `ts` | `type: "ts"` | `src/index.ts` skeleton, tsconfig (node), Vitest (node env), `build` = `tsc` |
-| `nextjs` | `type: "nextjs"` | Overlay applied **on top of create-next-app's output**: replaces its ESLint config, extends its tsconfig, adds Vitest + Testing Library, merges `package.json` |
-| `release` | `release: true` | `.github/workflows/release.yml`, `release-please-config.json`, `.release-please-manifest.json` |
+| Layer     | Applied when     | Contents                                                                                                                                                       |
+| --------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `base`    | always           | Agent files, quality configs, CI callers, Claude settings, docs, skeleton shared by both types                                                                 |
+| `ts`      | `type: "ts"`     | `src/index.ts` skeleton, tsconfig (node), Vitest (node env), `build` = `tsc`                                                                                   |
+| `nextjs`  | `type: "nextjs"` | Overlay applied **on top of create-next-app's output**: replaces its ESLint config, extends its tsconfig, adds Vitest + Testing Library, merges `package.json` |
+| `release` | `release: true`  | `.github/workflows/release.yml`, `release-please-config.json`, `.release-please-manifest.json`                                                                 |
 
 **Composition:** later layers override files at the same path. `package.json` is the one file that's **deep-merged** (base partial + type partial, plus create-next-app's file for nextjs), so dependencies and scripts combine.
 
 **Render interface** (consumed by `cli-new` and `cli-doctor`):
+
 ```ts
 type TemplateOptions = {
   readonly projectName: string;   // kebab-case, validated
@@ -64,11 +66,13 @@ mergePackageJson(existing: PackageJson | undefined, options: TemplateOptions): P
 deriveTemplateOptions(projectDir: string): Promise<TemplateOptions>   // for doctor on existing projects
 ownership: ReadonlyMap<string, Owner>      // path, glob or marked block → Owner.Project | Owner.Blueprint | Owner.Framework
 ```
+
 Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{blueprintMajor}}`) are replaced by plain string substitution, with no template engine.
 
 ## Files (base layer)
 
 **Agent instructions**
+
 - `AGENTS.md` (project-owned, except the marked blueprint block):
   1. `# {{projectName}}` plus the one-line description
   2. **Commands**: `pnpm dev`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm format`
@@ -87,10 +91,12 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
   - **Standards**: judge code against `docs/standards/`
 
 **Docs (blueprint-owned)**
+
 - `docs/standards/*.md`, copied from `standards/`
 - `docs/blueprint.md`: what blueprint set up, which paths blueprint owns, how updates arrive (Dependabot for presets, `@v<major>` for CI, `doctor --fix` for docs and the marked block)
 
 **Quality configs (project-owned, pointing at presets)**
+
 - `eslint.config.js`:
   - ts: `import { ts } from "@stavkamil/blueprint/eslint"; export default [...ts];`
   - nextjs: Next's `core-web-vitals` config first, then `...nextjs`
@@ -107,10 +113,12 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
   - dependencies: `zod`
   - devDependencies: `@stavkamil/blueprint`, `eslint`, `prettier`, `typescript` (`~6.x`, matching blueprint's pin), `lefthook`, `vitest`, `@vitest/coverage-v8`, `@types/node`
   - nextjs adds: `@testing-library/react`, `@testing-library/user-event`, `@testing-library/dom`, `jsdom`, `@vitejs/plugin-react` (`eslint-config-next` comes from create-next-app)
+- `pnpm-workspace.yaml`: `allowBuilds: { lefthook: false }`. pnpm 12 **fails the install** when a dependency's build script is neither allowed nor denied. Denying lefthook's script is safe because `prepare` installs the hooks (found while building repo-foundation).
 - `.nvmrc`: `24`
 - `.gitignore`: Node, coverage, `.env*` (except `.env.example`), and `.next/` for nextjs
 
 **CI and repo (project-owned)**
+
 - `.github/workflows/ci.yml` and `ai-review.yml`: the exact caller files from SPEC-ci-workflows
 - `.github/dependabot.yml`:
   - npm: weekly, one group for minor + patch, majors as separate PRs; TypeScript major versions ignored (blueprint moves to TypeScript 7 as one coordinated release)
@@ -119,6 +127,7 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
 - `.github/pull_request_template.md`: sections **Summary**, **Testing** (commands run and their result), **Risk**, **How to revert**, **Agent session** (link, filled in by agents running in cloud sessions)
 
 **Claude runtime (project-owned)**
+
 - `.claude/settings.json`:
   - `permissions.allow`:
     - `Bash(pnpm lint*)`, `Bash(pnpm typecheck)`, `Bash(pnpm test*)`, `Bash(pnpm build)`, `Bash(pnpm format)`, `Bash(pnpm install --frozen-lockfile)`
@@ -140,6 +149,7 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
 - `.claude/hooks/format-file.sh`: runs Prettier on the edited file only, silent on success
 
 **Skeleton (project-owned)**
+
 - `src/config/env.ts`: Zod schema for environment variables, parsed once, with an exported typed `env`. This models the boundary-validation standard.
 - `src/config/env.spec.ts`: one behavior test for it
 - `.env.example`: the variables `env.ts` expects, with no values
@@ -148,11 +158,13 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
 ## Files (type layers)
 
 **`ts`**
+
 - `src/index.ts`: one exported arrow function with JSDoc, plus `src/index.spec.ts`
 - `tsconfig.build.json`: `rootDir: "src"`, `outDir: "dist"`, excludes spec files (so `src/index.ts` builds to `dist/index.js`)
 - scripts: `dev` = `node --watch src/index.ts`, `build` = `tsc -p tsconfig.build.json`
 
 **`nextjs`** (overlay on create-next-app's output, run with TypeScript, Tailwind, ESLint, App Router, `src/` dir, `@/*` alias, pnpm, and agent files on)
+
 - **Replace:**
   - `eslint.config.mjs` → `eslint.config.js` (blueprint composition)
   - create-next-app's `README.md` → blueprint's
@@ -166,11 +178,11 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
 
 ## File ownership
 
-| Owner | Paths | Who changes them after creation |
-|---|---|---|
-| `blueprint` | `docs/standards/**`, `docs/blueprint.md`, the `blueprint-standards` block in `AGENTS.md` | Only `blueprint doctor --fix` (replaced whole) |
-| `framework` (Next.js) | the `nextjs-agent-rules` block in `AGENTS.md` | Only `next dev` / Next.js tooling |
-| `project` | everything else | The project, freely. `doctor` checks some invariants (e.g. the CI callers point at `@v<installed major>`) but never rewrites these files |
+| Owner                 | Paths                                                                                    | Who changes them after creation                                                                                                          |
+| --------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `blueprint`           | `docs/standards/**`, `docs/blueprint.md`, the `blueprint-standards` block in `AGENTS.md` | Only `blueprint doctor --fix` (replaced whole)                                                                                           |
+| `framework` (Next.js) | the `nextjs-agent-rules` block in `AGENTS.md`                                            | Only `next dev` / Next.js tooling                                                                                                        |
+| `project`             | everything else                                                                          | The project, freely. `doctor` checks some invariants (e.g. the CI callers point at `@v<installed major>`) but never rewrites these files |
 
 The marked-block pattern is the one Next.js uses for its own managed instructions. Blueprint copies it, so both tools
 manage their own section of `AGENTS.md` without touching each other's or the project's text.

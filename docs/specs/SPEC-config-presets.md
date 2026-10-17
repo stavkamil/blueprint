@@ -12,12 +12,14 @@ normal weekly Dependabot PR, with no file syncing.
 **Users:** projects created by `blueprint new` (`ts` and `nextjs`), and blueprint itself, which uses its own presets.
 
 **Scope:**
+
 - the preset files and how the package exposes them
 - the plugin wiring, including file-pattern overrides
 - the versioning rule
 - fixture tests: one case per lint-catalog rule
 
 **Out of scope:**
+
 - the standards content (`standards`)
 - agent instruction files (`project-template`), since agents load those before `node_modules` exists
 - each project's own Vitest config and coverage thresholds, its `paths` alias and its `eslint.config.js` (all `project-template`)
@@ -52,17 +54,18 @@ normal weekly Dependabot PR, with no file syncing.
 
 ## What the package exposes
 
-| Import or path | What it is | How a project uses it |
-|---|---|---|
-| `@stavkamil/blueprint/eslint` → `ts` | Full flat config for `ts` projects: `base` + `tests` + `boundaries("ts")` | `export default [...ts]` |
-| `@stavkamil/blueprint/eslint` → `nextjs` | Full flat config for `nextjs` projects: `base` + `react` + `tests` + `boundaries("nextjs")` + Next.js overrides | `export default [...nextCoreWebVitals, ...nextjs]` (Next's config **first**, so it registers its plugins) |
-| `@stavkamil/blueprint/eslint` → `base`, `react`, `tests`, `boundaries` | The building blocks, for advanced composition | Not used by templates |
-| `@stavkamil/blueprint/prettier` | Prettier config object | `package.json`: `"prettier": "@stavkamil/blueprint/prettier"` |
-| `@stavkamil/blueprint/tsconfig/node.json` | For `ts` projects | `tsconfig.json` `extends` |
-| `@stavkamil/blueprint/tsconfig/nextjs.json` | For `nextjs` projects | `tsconfig.json` `extends` |
-| `node_modules/@stavkamil/blueprint/presets/lefthook/base.yml` | Git hooks | `lefthook.yml` `extends` |
+| Import or path                                                         | What it is                                                                                                      | How a project uses it                                                                                     |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `@stavkamil/blueprint/eslint` → `ts`                                   | Full flat config for `ts` projects: `base` + `tests` + `boundaries("ts")`                                       | `export default [...ts]`                                                                                  |
+| `@stavkamil/blueprint/eslint` → `nextjs`                               | Full flat config for `nextjs` projects: `base` + `react` + `tests` + `boundaries("nextjs")` + Next.js overrides | `export default [...nextCoreWebVitals, ...nextjs]` (Next's config **first**, so it registers its plugins) |
+| `@stavkamil/blueprint/eslint` → `base`, `react`, `tests`, `boundaries` | The building blocks, for advanced composition                                                                   | Not used by templates                                                                                     |
+| `@stavkamil/blueprint/prettier`                                        | Prettier config object                                                                                          | `package.json`: `"prettier": "@stavkamil/blueprint/prettier"`                                             |
+| `@stavkamil/blueprint/tsconfig/node.json`                              | For `ts` projects                                                                                               | `tsconfig.json` `extends`                                                                                 |
+| `@stavkamil/blueprint/tsconfig/nextjs.json`                            | For `nextjs` projects                                                                                           | `tsconfig.json` `extends`                                                                                 |
+| `node_modules/@stavkamil/blueprint/presets/lefthook/base.yml`          | Git hooks                                                                                                       | `lefthook.yml` `extends`                                                                                  |
 
 **Plugin registration (prevents "Cannot redefine plugin"):**
+
 - `base`, `tests` and `boundaries` register their own plugins.
 - `react` registers **nothing**. It only sets rules for the `react`, `react-hooks` and `jsx-a11y` plugins that `eslint-config-next` registered.
 - `testing-library` is registered by `tests` (Next's config doesn't include it).
@@ -70,10 +73,11 @@ normal weekly Dependabot PR, with no file syncing.
 
 ## Rule wiring
 
-The catalog in SPEC-standards.md is the source of truth for *which* standards exist. This section lists only the
+The catalog in SPEC-standards.md is the source of truth for _which_ standards exist. This section lists only the
 wiring details the catalog leaves open.
 
 **`base`** (all `*.ts`, `*.tsx`, `*.js` files)
+
 - `@eslint/js` recommended + `typescript-eslint` `recommendedTypeChecked` with `projectService: true`
 - Every TypeScript and module rule from the catalog
 - Settings the catalog leaves open:
@@ -93,11 +97,13 @@ wiring details the catalog leaves open.
 - `eslint-config-prettier` last
 
 **Overrides (by file pattern)**
+
 - Next.js route files (`app/**/{page,layout,loading,error,not-found,route,template,default}.tsx`) and `*.config.{js,ts,mjs}`: default export allowed; JSDoc not required
 - `**/constants.ts`, `src/config/**`, `**/*.spec.{ts,tsx}`: magic numbers allowed
 - `**/*.spec.{ts,tsx}`: JSDoc not required; `@typescript-eslint/no-non-null-assertion` stays on
 
 **`react`** (nextjs, `*.tsx`; rules only)
+
 - `react-hooks` recommended, including the React Compiler rules
 - `react/no-multi-comp`, `react/destructuring-assignment: always`
 - `react/function-component-definition: arrow-function`
@@ -106,10 +112,12 @@ wiring details the catalog leaves open.
 - `@typescript-eslint/no-restricted-types` blocks `React.FC` and `FC`
 
 **`tests`** (`*.spec.ts`, `*.spec.tsx`)
+
 - `@vitest/eslint-plugin` recommended + `consistent-test-filename` (`.spec`), `no-focused-tests`, `no-disabled-tests`
 - `eslint-plugin-testing-library` react config, only on `*.spec.tsx`
 
 **`boundaries("ts" | "nextjs")`**
+
 - **Element types:**
   - nextjs: `app`, `feature` (`src/features/*`), and shared `components`, `hooks`, `utils`, `types`, `config`, `lib`
   - ts: `entry` (`src/index.ts` and `src/commands/**`), `module` (`src/modules/*`), and shared `utils`, `types`, `config`, `lib`
@@ -122,12 +130,14 @@ wiring details the catalog leaves open.
 ## Preset contents (non-ESLint)
 
 **tsconfig `node.json`:**
+
 - `strict`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch`
 - `verbatimModuleSyntax`, `erasableSyntaxOnly`, `rewriteRelativeImportExtensions`, `isolatedModules`, `skipLibCheck`
 - `target: ES2024`, `module: nodenext`, `declaration`, `sourceMap`
 - `types: ["node"]` (TS 6 no longer includes `@types/*` by default). `rootDir` isn't set here, because TypeScript resolves it relative to this file in `node_modules`. Each project's `tsconfig.build.json` sets `rootDir: "src"`, so output lands in `dist/` rather than `dist/src/` (project-template).
 
 **tsconfig `nextjs.json`:**
+
 - The same strictness flags, **including `erasableSyntaxOnly`** (it enforces "no enum"; Next's compiler doesn't need the erasable-only features it forbids)
 - `module: esnext`, `moduleResolution: bundler`, `jsx: preserve`, `noEmit`, `allowJs`, `incremental`, `plugins: [{ "name": "next" }]`
 - No `rewriteRelativeImportExtensions` (nextjs imports omit extensions)
@@ -136,6 +146,7 @@ wiring details the catalog leaves open.
 **Prettier:** Prettier's defaults, plus `printWidth: 100`.
 
 **lefthook `base.yml`:**
+
 - `pre-commit` (run in parallel):
   - Prettier `--write` on staged files (`stage_fixed: true`)
   - ESLint `--fix` on staged `.ts`/`.tsx`/`.js` files (`stage_fixed: true`)
