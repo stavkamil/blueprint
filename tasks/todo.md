@@ -241,13 +241,13 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Acceptance criteria:**
 
-- [ ] `gh repo view stavkamil/blueprint` shows public, with the description set
-- [ ] `gh api repos/stavkamil/blueprint/rulesets` lists the ruleset; a direct push to `main` is rejected
-- [ ] The PR from `feat/repo-foundation` runs CI and shows the `ci-ok` check
+- [x] `gh repo view stavkamil/blueprint` shows public, with the description set
+- [x] `gh api repos/stavkamil/blueprint/rulesets` lists the ruleset; a direct push to `main` is rejected
+- [x] The PR from `feat/repo-foundation` runs CI and shows the `ci-ok` check
 
 **Verification:**
 
-- [ ] Manual check: the three commands/observations above
+- [x] Manual check: the three commands/observations above
 
 **Dependencies:** Checkpoint B, your approval
 
@@ -270,13 +270,13 @@ The npm name can only be claimed once `main` contains the package, so the bootst
 
 **Acceptance criteria:**
 
-- [ ] `gh secret list -R stavkamil/blueprint` shows both release secrets
-- [ ] "release 1.0.0" PR is open with CI run on it
-- [ ] `npm view @stavkamil/blueprint version` prints `0.0.0`; trusted publisher configured; same sitting as task 11 (2-day window)
+- [x] `gh secret list -R stavkamil/blueprint` shows both release secrets
+- [x] "release 1.0.0" PR is open with CI run on it
+- [x] `npm view @stavkamil/blueprint version` prints `0.0.0`; trusted publisher configured; same sitting as task 11 (2-day window)
 
 **Verification:**
 
-- [ ] Manual check: the commands above
+- [x] Manual check: the commands above
 
 **Dependencies:** Task 9
 
@@ -289,6 +289,8 @@ The npm name can only be claimed once `main` contains the package, so the bootst
 ## Task 11: Prove the pipeline
 
 **Description:** Prove the guardrails, then ship the first release.
+
+**Status (2026-10-17):** GitHub release `v1.0.0` created by the pipeline. The automatic npm publish is blocked by npm/cli#9969 (see the spec's Known Issue), so 1.0.0 is published by hand and `v1` is created by hand. `release-as` is removed in the same PR that records the workaround.
 
 **Acceptance criteria:**
 
