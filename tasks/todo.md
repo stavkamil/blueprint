@@ -9,10 +9,10 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 **Description:** Install the CLIs the hooks and workflow linters call, so local checks behave like CI.
 
 **Acceptance criteria:**
-- [ ] `gitleaks version`, `actionlint --version` and `zizmor --version` all succeed
+- [x] `gitleaks version`, `actionlint --version` and `zizmor --version` all succeed
 
 **Verification:**
-- [ ] Manual check: the three commands print versions
+- [x] Manual check: the three commands print versions
 
 **Dependencies:** None (needs your approval to run `brew install gitleaks actionlint zizmor`)
 
@@ -27,14 +27,14 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 **Description:** Create the git repo and the package in blueprint's own layout, with a CLI that answers `--version` and `--help` and rejects unknown flags with a helpful message.
 
 **Acceptance criteria:**
-- [ ] `git init -b main`; an initial commit holds only `docs/specs/` and `tasks/`; work continues on branch `feat/repo-foundation`
-- [ ] `package.json`: name `@stavkamil/blueprint`, version `0.0.0`, `type: module`, `bin: { blueprint: dist/index.js }`, `engines.node >=22.18`, `packageManager` pinned, `typescript ~6.0.3`; `.nvmrc` = 24
-- [ ] `node src/index.ts --version` and `node dist/index.js --version` print `0.0.0`; `--help` prints usage; an unknown flag exits 1 with "run `blueprint --help`"
+- [x] `git init -b main`; an initial commit holds only `docs/specs/` and `tasks/`; work continues on branch `feat/repo-foundation`
+- [x] `package.json`: name `@stavkamil/blueprint`, version `0.0.0`, `type: module`, `bin: { blueprint: dist/index.js }`, `engines.node >=22.18`, `packageManager` pinned, `typescript ~6.0.3`; `.nvmrc` = 24
+- [x] `node src/index.ts --version` and `node dist/index.js --version` print `0.0.0`; `--help` prints usage; an unknown flag exits 1 with "run `blueprint --help`"
 
 **Verification:**
-- [ ] Tests pass: `pnpm test` (`src/index.spec.ts`, `src/utils/version.spec.ts` call `run(argv)` directly)
-- [ ] Build succeeds: `pnpm build` produces `dist/index.js` (not `dist/src/…`)
-- [ ] Manual check: `pnpm dev -- --help`
+- [x] Tests pass: `pnpm test` (`src/index.spec.ts`, `src/utils/version.spec.ts` call `run(argv)` directly)
+- [x] Build succeeds: `pnpm build` produces `dist/index.js` (not `dist/src/…`)
+- [x] Manual check: `pnpm dev -- --help`
 
 **Dependencies:** None
 

@@ -1,0 +1,26 @@
+{
+  "name": "@stavkamil/blueprint",
+  "version": "0.0.0",
+  "description": "Sets up an agent-first SDLC and CI/CD environment for new TypeScript projects.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "blueprint": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "packageManager": "pnpm@12.11.2",
+  "scripts": {
+    "dev": "node src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "~6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

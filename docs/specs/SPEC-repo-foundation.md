@@ -68,9 +68,9 @@ folders.
 ```
 blueprint/
 ├── src/
-│   ├── index.ts             → entry point (bin "blueprint"): parses argv, dispatches to commands
-│   ├── index.spec.ts
+│   ├── index.ts             → entry point (bin "blueprint"): three lines that call `run` and set the exit code
 │   ├── commands/            → one file per command; composes modules (entry element)
+│   │   └── main.ts          → `run(argv, io)`: parses flags, dispatches commands, returns the exit code (tested in main.spec.ts)
 │   ├── modules/             → (reserved: doctor, scaffold) one folder per domain; modules never import each other
 │   ├── utils/               → pure shared helpers (version, errors, output; later: template rendering)
 │   └── lib/                 → system clients (process runner; later: gh, Keychain)
