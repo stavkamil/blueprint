@@ -61,13 +61,13 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] The required-list entry goes red, then the guide turns it green
-- [ ] Every catalog rule for this guide is present, and its `ts` examples typecheck
-- [ ] No lint-catalog rule restated (e.g. `.spec.ts` naming is lint's, so it's not repeated)
+- [x] The required-list entry goes red, then the guide turns it green
+- [x] Every catalog rule for this guide is present, and its `ts` examples typecheck
+- [x] No lint-catalog rule restated (e.g. `.spec.ts` naming is lint's, so it's not repeated)
 
 **Verification:**
 
-- [ ] Tests pass: `pnpm test`
+- [x] Tests pass: `pnpm test`
 
 **Dependencies:** Task 1
 
