@@ -1,0 +1,26 @@
+# Blueprint git hooks, shared by every project through `extends` in its lefthook.yml.
+# Silent on success, verbose on failure.
+output:
+  - failure
+
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{ts,tsx,js,mjs,json,md,yml,yaml,css}"
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+    lint:
+      glob: "*.{ts,tsx,js,mjs}"
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+    secrets:
+      run: >-
+        command -v gitleaks >/dev/null 2>&1 ||
+        { echo "gitleaks is not installed. Install it: brew install gitleaks (cloud sessions: run the environment setup script)"; exit 1; };
+        gitleaks git --pre-commit --staged --redact --no-banner
+
+pre-push:
+  commands:
+    verify:
+      run: pnpm typecheck && pnpm test

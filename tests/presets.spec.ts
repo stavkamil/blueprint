@@ -451,3 +451,20 @@ describe("nextjs preset", () => {
     expect(relevant).toEqual([]);
   }, 120_000);
 });
+
+describe("lefthook preset", () => {
+  it("gives a project that extends it the format, lint, secrets and verify hooks", async () => {
+    const dir = join(cacheDir, "presets-fixture-lefthook");
+    await rm(dir, { recursive: true, force: true });
+    await mkdir(dir, { recursive: true });
+    await writeFile(
+      join(dir, "lefthook.yml"),
+      `extends:\n  - ${join(root, "presets", "lefthook", "base.yml")}\n`,
+    );
+
+    const merged = await stdoutOf("lefthook", ["dump"], dir);
+
+    expect(merged).toMatch(/pre-commit:[\s\S]*format:[\s\S]*lint:[\s\S]*secrets:/u);
+    expect(merged).toMatch(/pre-push:[\s\S]*verify:/u);
+  }, 60_000);
+});
