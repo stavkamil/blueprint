@@ -23,7 +23,12 @@ try {
 
   const { stdout: listing } = await exec("tar", ["-tzf", tarball]);
   const files = listing.trim().split("\n");
-  const required = ["package/package.json", "package/dist/index.js"];
+  const guides = ["typescript", "testing", "structure", "workflow", "react", "agents-block"];
+  const required = [
+    "package/package.json",
+    "package/dist/index.js",
+    ...guides.map((guide) => `package/standards/${guide}.md`),
+  ];
   const missing = required.filter((file) => !files.includes(file));
   if (missing.length > 0) {
     fail(`tarball is missing ${missing.join(", ")}`);

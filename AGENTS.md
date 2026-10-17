@@ -13,12 +13,17 @@ Scripts live in `package.json`. Before every commit: `pnpm lint && pnpm typechec
 - **Building or changing a module** → read its spec in `docs/specs/` (the index is `docs/specs/CAPABILITY-MAP.md`)
   and its task list in `tasks/`. Update the spec first when a decision changes.
 
-## Layout
+## Standards
 
-- `src/index.ts` is the bin entry; `src/commands/` composes modules, one file per command.
-- `src/modules/<name>/` holds one domain each; modules import only themselves and shared folders.
-- Shared code: `src/utils/` (pure helpers), `src/lib/` (system clients such as `gh` and the Keychain).
-- Tests sit next to the code as `*.spec.ts`.
+Blueprint follows the standards it ships (a ts project):
+
+- **Writing TypeScript** → read standards/typescript.md
+- **Writing tests** → read standards/testing.md
+- **Adding files or folders** → read standards/structure.md (here, `src/lib/` holds system clients such as `gh`)
+- **Opening a PR** → read standards/workflow.md
+- **Changing a guide** → keep `tests/standards.spec.ts` green; it guards length, examples and rule placement
+
+Everything else is enforced: run `pnpm lint`.
 
 ## Boundaries
 
@@ -28,7 +33,8 @@ Scripts live in `package.json`. Before every commit: `pnpm lint && pnpm typechec
   - changing publish fields in `package.json` (`name`, `bin`, `files`, `exports`, `publishConfig`)
   - changing the ruleset, npm settings or the TypeScript pin
 - **Keep the bar:** get to green by fixing the code; coverage thresholds, tests and lint rules stay as they are.
-- **Releases come only from CI.** Changes reach `main` through a reviewed PR.
+- **Changes reach `main` through a reviewed PR.** Releases come from CI, except the npm publish step, which is
+  manual until npm/cli#9969 is fixed (see `docs/maintainer-setup.md`).
 - **Never:**
   - commit secrets, tokens or `.npmrc` credentials
   - push to `main`

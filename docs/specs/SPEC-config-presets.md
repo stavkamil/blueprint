@@ -38,6 +38,7 @@ normal weekly Dependabot PR, with no file syncing.
 6. **No lint plugins to install:** projects install the tools themselves (`eslint`, `prettier`, `typescript`, `lefthook`, plus their test tools, listed in project-template) but **no ESLint plugins**. Every plugin comes from blueprint's dependencies, except `eslint-config-next` in nextjs.
 7. **lefthook pre-commit** with one staged `.ts` file finishes in under 5 seconds on the fixture. It fails on a staged fake secret, with a fix message. It fails with `brew install gitleaks` (or "run the cloud setup script") when gitleaks is missing.
 8. **Blueprint lints itself** with the `ts` preset and passes.
+9. **The standards' examples pass the presets** (the second half of SPEC-standards criterion 3): every `ts`/`tsx` block in `standards/*.md` is linted with the matching preset at its titled path, and the `tsx` blocks typecheck inside the nextjs fixture.
 
 ## Tech Stack
 
@@ -238,7 +239,7 @@ All other conventions follow [SPEC-repo-foundation.md](SPEC-repo-foundation.md#c
 
 ## Success Criteria
 
-- Acceptance criteria 1–8 pass in CI.
+- Acceptance criteria 1–9 pass in CI.
 - A sample project's config files that extend presets are each 1–10 lines, with no copied rule lists.
 - Bumping `@stavkamil/blueprint` by a patch or minor version in the fixtures changes no lint, typecheck or format results.
 
