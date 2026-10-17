@@ -187,3 +187,13 @@ export const readPackageVersion = async (packageJsonUrl: URL): Promise<string> =
 3. **License:** MIT.
 4. **TypeScript:** 6.x until typescript-eslint supports TypeScript 7.
 5. **First version:** 1.0.0, so `@v1` exists from the first release.
+
+## Known Issue (2026-10-17)
+
+**Acceptance criterion 7 is blocked by an npm bug: automatic publishing, provenance and the automatic `v1` tag.**
+
+- **What fails:** npm's trusted publishing rejects GitHub's immutable OIDC subject format, which every repo created after 2026-07-15 gets ([npm/cli#9969](https://github.com/npm/cli/issues/9969)). The `publish` job fails with `403 OIDC permission denied`, and the repo-level opt-out doesn't take effect.
+- **Interim (decided 2026-10-17):** each release is published by hand from its tag with 2FA, and the major tag is moved by hand. "Disallow tokens" stays on, and no npm token is stored anywhere. Steps are in [docs/maintainer-setup.md](../maintainer-setup.md#known-issue-publish-fails-with-oidc-permission-denied-since-2026-10).
+- **Cost:** those versions have no provenance badge.
+- **Done when:** npm fixes the bug, a release publishes through `release.yml` with provenance, and the known-issue section is removed.
+- **Projects affected:** projects created by blueprint don't publish to npm in v1, so this only affects blueprint itself. The v2 "project publishing" work must account for it.
