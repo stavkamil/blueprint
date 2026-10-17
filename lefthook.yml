@@ -1,4 +1,8 @@
 # Local config until the config-presets module ships blueprint's lefthook base, which this file will extend.
+# Silent on success, verbose on failure.
+output:
+  - failure
+
 pre-commit:
   parallel: true
   commands:
