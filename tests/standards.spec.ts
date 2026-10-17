@@ -15,7 +15,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const standardsDir = join(root, "standards");
 const maxGuideLines = 100;
 
-const REQUIRED_GUIDES: readonly string[] = [];
+const REQUIRED_GUIDES: readonly string[] = ["typescript.md"];
 
 const ALL_GUIDES = ["typescript.md", "testing.md", "structure.md", "workflow.md", "react.md"];
 
@@ -40,7 +40,13 @@ const RULE_PHRASES: Readonly<Record<string, readonly string[]>> = {
     "playwright",
     "coverage",
   ],
-  "structure.md": ["src/features", "src/modules", "never import each other", "colocate", "7 files"],
+  "structure.md": [
+    "src/features/<name>",
+    "src/modules/<name>",
+    "never import each other",
+    "colocate",
+    "7 files",
+  ],
   "workflow.md": [
     "one change per branch",
     "conventional commit",

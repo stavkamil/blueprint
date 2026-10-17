@@ -38,14 +38,14 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] Adding `typescript.md` to the required list goes red, and the guide turns it green
-- [ ] Every catalog rule for this guide is present, with a ✅ example only where it adds clarity and a source link where a rule comes from one
-- [ ] No rule from the lint catalog is restated
+- [x] Adding `typescript.md` to the required list goes red, and the guide turns it green
+- [x] Every catalog rule for this guide is present, with a ✅ example only where it adds clarity and a source link where a rule comes from one
+- [x] No rule from the lint catalog is restated
 
 **Verification:**
 
-- [ ] Tests pass: `pnpm test`
-- [ ] Manual check: the guide reads as target behavior and is under 100 lines
+- [x] Tests pass: `pnpm test`
+- [x] Manual check: the guide reads as target behavior and is under 100 lines
 
 **Dependencies:** Task 1
 
