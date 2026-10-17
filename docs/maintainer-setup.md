@@ -41,12 +41,12 @@ Release-please opens release PRs with this app's token, so CI runs on them; PRs 
    - Name: `blueprint-release`. Homepage: the repo URL. Webhook: **off**.
    - Repository permissions: **Contents: Read and write**, **Pull requests: Read and write**. Nothing else.
    - Where can it be installed: **Only on this account**.
-2. Create the app, note its **App ID**, and generate a **private key** (downloads a `.pem` file).
+2. Create the app, note its **Client ID** (shown on the app page; the action no longer takes the App ID), and generate a **private key** (downloads a `.pem` file).
 3. **Install App** → your account → **All repositories**. Projects created later with `--release` reuse this app.
 4. Save the secrets in this repo, then delete the `.pem` file:
 
    ```bash
-   gh secret set RELEASE_APP_ID -R stavkamil/blueprint          # paste the App ID at the prompt
+   gh secret set RELEASE_APP_CLIENT_ID -R stavkamil/blueprint          # paste the Client ID at the prompt
    gh secret set RELEASE_APP_PRIVATE_KEY -R stavkamil/blueprint < path/to/key.pem
    ```
 

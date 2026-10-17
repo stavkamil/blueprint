@@ -183,14 +183,14 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Acceptance criteria:**
 
-- [ ] `release-please-config.json` (node, `release-as: 1.0.0`) and `.release-please-manifest.json` (`0.0.0`)
-- [ ] `package.json` publish fields: `files: ["dist"]`, `publishConfig: { access: "public" }`, `repository` set (npm requires it for provenance)
-- [ ] The publish job has no npm token anywhere; the tag move runs only after a successful publish
-- [ ] `pnpm lint:workflows` reports zero findings
+- [x] `release-please-config.json` (node, `release-as: 1.0.0`) and `.release-please-manifest.json` (`0.0.0`)
+- [x] `package.json` publish fields: `files: ["dist"]`, `publishConfig: { access: "public" }`, `repository` set (npm requires it for provenance)
+- [x] The publish job has no npm token anywhere; the tag move runs only after a successful publish
+- [x] `pnpm lint:workflows` reports zero findings
 
 **Verification:**
 
-- [ ] Manual check: `pnpm lint:workflows`; `pnpm pack --dry-run` lists only `dist/`, `package.json`, `README.md`, `LICENSE`
+- [x] Manual check: `pnpm lint:workflows`; `pnpm pack --dry-run` lists only `dist/`, `package.json`, `README.md`, `LICENSE`
 - [ ] Real run happens in task 11
 
 **Dependencies:** Task 6
@@ -261,7 +261,7 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Description:** Following `docs/maintainer-setup.md` steps 3–6:
 
-1. You create the `blueprint-release` GitHub App, install it on all repositories, and add `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` as repo secrets.
+1. You create the `blueprint-release` GitHub App, install it on all repositories, and add `RELEASE_APP_CLIENT_ID` and `RELEASE_APP_PRIVATE_KEY` as repo secrets.
 2. The foundation PR is merged, and release-please opens "release 1.0.0" (left open).
 3. You run `npm login` (2FA) and `npm publish` of `0.0.0` from `main`, so the package exists.
 4. You add the trusted publisher (`stavkamil/blueprint`, `release.yml`) and set "Require 2FA and disallow tokens".

@@ -3,9 +3,23 @@
   "version": "0.0.0",
   "description": "Sets up an agent-first SDLC and CI/CD environment for new TypeScript projects.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stavkamil/blueprint.git"
+  },
+  "homepage": "https://github.com/stavkamil/blueprint#readme",
+  "bugs": {
+    "url": "https://github.com/stavkamil/blueprint/issues"
+  },
   "type": "module",
   "bin": {
     "blueprint": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "node": ">=22.18"
@@ -35,8 +49,5 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.5"
-  },
-  "files": [
-    "dist"
-  ]
+  }
 }
