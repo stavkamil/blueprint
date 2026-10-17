@@ -1,6 +1,19 @@
+import { readFile } from "node:fs/promises";
+
 import { describe, expect, it } from "vitest";
 
 import { run } from "./main.ts";
+
+// The version changes with every release, so the test reads it instead of hard-coding it.
+const readExpectedVersion = async (): Promise<string> => {
+  const pkg: unknown = JSON.parse(
+    await readFile(new URL("../../package.json", import.meta.url), "utf8"),
+  );
+  if (typeof pkg !== "object" || pkg === null || !("version" in pkg)) {
+    throw new Error("package.json has no version");
+  }
+  return String(pkg.version);
+};
 
 const makeIo = (): {
   readonly out: string[];
@@ -30,7 +43,7 @@ describe("run", () => {
     const exitCode = await run(["--version"], io);
 
     expect(exitCode).toBe(0);
-    expect(out).toEqual(["0.0.0"]);
+    expect(out).toEqual([await readExpectedVersion()]);
   });
 
   it("prints usage for --help", async () => {

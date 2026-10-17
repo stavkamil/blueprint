@@ -116,6 +116,8 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
 - `pnpm-workspace.yaml`: `allowBuilds: { lefthook: false }`. pnpm 12 **fails the install** when a dependency's build script is neither allowed nor denied. Denying lefthook's script is safe because `prepare` installs the hooks (found while building repo-foundation).
 - `.nvmrc`: `24`
 - `.gitignore`: Node, coverage, `.env*` (except `.env.example`), and `.next/` for nextjs
+- `.prettierignore`: `dist/`, `coverage/`, `pnpm-lock.yaml`, `.next/` (nextjs), and `CHANGELOG.md`. release-please writes the changelog in its own format, which would otherwise fail `prettier --check` on every release PR (found on blueprint's first release PR).
+- **Starter tests never hard-code the package version.** They read it from `package.json`, because release PRs bump it (same finding).
 
 **CI and repo (project-owned)**
 
