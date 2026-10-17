@@ -78,12 +78,12 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Acceptance criteria:**
 
-- [ ] `pnpm smoke` exits 0 and prints the installed version
-- [ ] The tarball contains `dist/` and `package.json`, and no `src/`, tests or specs (checked from the `pnpm pack` file list)
+- [x] `pnpm smoke` exits 0 and prints the installed version
+- [x] The tarball contains `dist/` and `package.json`, and no `src/`, tests or specs (checked from the `pnpm pack` file list)
 
 **Verification:**
 
-- [ ] Manual check: `pnpm build && pnpm smoke`
+- [x] Manual check: `pnpm build && pnpm smoke`
 
 **Dependencies:** Task 2
 
@@ -95,7 +95,7 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 ## Checkpoint A: package works
 
-- [ ] `pnpm install && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm smoke` all pass
+- [x] `pnpm install && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm smoke` all pass
 - [ ] Review with you
 
 ---
