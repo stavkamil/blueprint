@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7 # let new releases settle before adopting them
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      dependencies:
+        applies-to: version-updates
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      # TypeScript 7 has no programmatic API yet, so typescript-eslint can't run on it.
+      # Blueprint moves to it in one coordinated major release.
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+    groups:
+      actions:
+        applies-to: version-updates
+        patterns: ["*"]

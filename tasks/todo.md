@@ -207,12 +207,12 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Acceptance criteria:**
 
-- [ ] `dependabot.yml`: npm weekly with minor+patch grouped, majors separate, `typescript` major ignored; github-actions weekly grouped
-- [ ] `.github/rulesets/main.json`: PR required (0 approvals), conversation resolution, required check `ci-ok` with up-to-date branches, squash-only merges, force-push and deletion blocked, no bypass actors
+- [x] `dependabot.yml`: npm weekly with minor+patch grouped, majors separate, `typescript` major ignored; github-actions weekly grouped
+- [x] `.github/rulesets/main.json`: PR required (0 approvals), conversation resolution, required check `ci-ok` with up-to-date branches, squash-only merges, force-push and deletion blocked, no bypass actors
 
 **Verification:**
 
-- [ ] Manual check: both files validate (`actionlint` doesn't cover Dependabot; checked by schema with `npx -y ajv-cli` or by GitHub on first push in task 9)
+- [x] Manual check: both files validate (`actionlint` doesn't cover Dependabot; checked by schema with `npx -y ajv-cli` or by GitHub on first push in task 9)
 
 **Dependencies:** Task 6
 
