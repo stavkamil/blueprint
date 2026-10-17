@@ -19,6 +19,9 @@ updates:
       # Blueprint moves to it in one coordinated major release.
       - dependency-name: typescript
         update-types: [version-update:semver-major]
+      # Node's type definitions follow the Node major we run (.nvmrc), not the newest release.
+      - dependency-name: "@types/node"
+        update-types: [version-update:semver-major]
 
   - package-ecosystem: github-actions
     directory: /
