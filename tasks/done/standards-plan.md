@@ -1,8 +1,8 @@
-# Implementation Plan: standards
+# Implementation Plan: standards (done 2026-10-17; release deferred to the next milestone)
 
-Spec: [docs/specs/SPEC-standards.md](../docs/specs/SPEC-standards.md) (module 2 of 8, see the
-[capability map](../docs/specs/CAPABILITY-MAP.md)). The task checklist is in [todo.md](todo.md). The previous module's
-finished plan is in [done/](done/).
+Spec: [docs/specs/SPEC-standards.md](../../docs/specs/SPEC-standards.md) (module 2 of 8, see the
+[capability map](../../docs/specs/CAPABILITY-MAP.md)). The task checklist is in [standards-todo.md](standards-todo.md). The previous module's
+finished plan is in [done/](./).
 
 ## Overview
 

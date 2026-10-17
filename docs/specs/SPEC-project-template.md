@@ -1,6 +1,8 @@
 # Spec: project-template
 
 Module 5 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `config-presets`, `ci-workflows` and `standards`.
+
+**Built together with `cli-new` in one PR** (lean order, 2026-10-17). `cli-new` uses `cli-doctor`'s v1 scope for securing GitHub.
 `cli-doctor` and `cli-new` depend on it.
 
 ## Objective

@@ -24,7 +24,17 @@ Blueprint's first automated release is **1.0.0**, so `@v1` exists from day one.
 
 ## Build order
 
-`repo-foundation` → `standards` → `config-presets` and `ci-workflows` (parallel; `ci-workflows` only needs `repo-foundation`) → `project-template` → `cli-doctor` → `cli-new` → `new-project-skill`
+Lean order (2026-10-17): each step is one PR.
+
+1. `config-presets`
+2. `ci-workflows`
+3. `project-template` + `cli-new` together: `blueprint new` creates a working project (GitHub repo creation included)
+4. `cli-doctor`, **v1 scope only**: what `new` needs to lock down GitHub (see SPEC-cli-doctor, "v1 scope")
+5. `new-project-skill`
+
+→ **First real release** once `pnpm dlx @stavkamil/blueprint@1 new` works. Until then the release PR stays open and collects changes.
+
+Done: `repo-foundation`, `standards`.
 
 ## Prerequisites (one time, by the user)
 
@@ -50,9 +60,10 @@ Blueprint's first automated release is **1.0.0**, so `@v1` exists from day one.
   - Reusable workflows are named `reusable-*.yml`, separate from blueprint's own workflows.
   - Blueprint follows its own standards.
   - `ts` projects also get the one-line `CLAUDE.md`, because the review plugin reads `CLAUDE.md`.
+- **2026-10-17, lean process:** one PR per module, plans in the PR description, releases only at milestones. `cli-doctor` is cut to a v1 scope; `project-template` and `cli-new` are built together.
 - **Deferred to v2:** deploys and project publishing, daily status routine, nightly scans, Semgrep, iOS, TypeScript 7.
 
 ## Specs
 
-Each module has `SPEC-<module-id>.md` in this folder (`docs/specs/`), written in build order. Implementation plans go
-in `tasks/` at the repo root, one module at a time.
+Each module has `SPEC-<module-id>.md` in this folder (`docs/specs/`). Its implementation plan is a short task list in
+the module's PR description; finished plans from the first two modules are in `tasks/done/`.
