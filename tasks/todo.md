@@ -106,13 +106,13 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Acceptance criteria:**
 
-- [ ] `pnpm install` installs the hooks (`prepare: lefthook install`); `.git/hooks/pre-commit` and `pre-push` are lefthook's
-- [ ] Committing a file with a fake secret fails with gitleaks' finding; committing a normal one-file change takes under 5 seconds
-- [ ] Pushing with a failing test is blocked
+- [x] `pnpm install` installs the hooks (`prepare: lefthook install`); `.git/hooks/pre-commit` and `pre-push` are lefthook's
+- [x] Committing a file with a fake secret fails with gitleaks' finding; committing a normal one-file change takes under 5 seconds
+- [x] Pushing with a failing test is blocked
 
 **Verification:**
 
-- [ ] Manual check: the three scenarios above, then revert
+- [x] Manual check: the three scenarios above, then revert
 
 **Dependencies:** Tasks 0, 2
 

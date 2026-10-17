@@ -1,0 +1,22 @@
+# Local config until the config-presets module ships blueprint's lefthook base, which this file will extend.
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{ts,js,json,md,yml,yaml}"
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+    lint:
+      glob: "*.{ts,js}"
+      run: pnpm exec eslint --fix {staged_files}
+      stage_fixed: true
+    secrets:
+      run: >-
+        command -v gitleaks >/dev/null 2>&1 ||
+        { echo "gitleaks is not installed. Install it: brew install gitleaks (cloud sessions: run the environment setup script)"; exit 1; };
+        gitleaks git --pre-commit --staged --redact --no-banner
+
+pre-push:
+  commands:
+    verify:
+      run: pnpm typecheck && pnpm test

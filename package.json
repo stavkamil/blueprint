@@ -19,7 +19,8 @@
     "test": "vitest run --coverage",
     "test:watch": "vitest",
     "build": "tsc -p tsconfig.build.json",
-    "smoke": "pnpm build && node scripts/smoke.ts"
+    "smoke": "pnpm build && node scripts/smoke.ts",
+    "prepare": "lefthook install"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -28,6 +29,7 @@
     "eslint": "^10.13.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsdoc": "^65.3.8",
+    "lefthook": "^2.2.2",
     "prettier": "^3.9.10",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.2",

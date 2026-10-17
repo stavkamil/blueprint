@@ -113,6 +113,7 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
   - dependencies: `zod`
   - devDependencies: `@stavkamil/blueprint`, `eslint`, `prettier`, `typescript` (`~6.x`, matching blueprint's pin), `lefthook`, `vitest`, `@vitest/coverage-v8`, `@types/node`
   - nextjs adds: `@testing-library/react`, `@testing-library/user-event`, `@testing-library/dom`, `jsdom`, `@vitejs/plugin-react` (`eslint-config-next` comes from create-next-app)
+- `pnpm-workspace.yaml`: `allowBuilds: { lefthook: false }`. pnpm 12 **fails the install** when a dependency's build script is neither allowed nor denied. Denying lefthook's script is safe because `prepare` installs the hooks (found while building repo-foundation).
 - `.nvmrc`: `24`
 - `.gitignore`: Node, coverage, `.env*` (except `.env.example`), and `.next/` for nextjs
 
