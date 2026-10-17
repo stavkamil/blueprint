@@ -123,7 +123,7 @@ Placeholders in template files (`{{projectName}}`, `{{description}}`, `{{bluepri
 
 - `.github/workflows/ci.yml` and `ai-review.yml`: the exact caller files from SPEC-ci-workflows
 - `.github/dependabot.yml`:
-  - npm: weekly, one group for minor + patch, majors as separate PRs; TypeScript major versions ignored (blueprint moves to TypeScript 7 as one coordinated release)
+  - npm: weekly, one group for minor + patch, majors as separate PRs; TypeScript major versions ignored (blueprint moves to TypeScript 7 as one coordinated release); `@types/node` major versions ignored, since they follow the Node major in `.nvmrc` (Dependabot proposed jumping to 26 on blueprint)
   - github-actions: weekly, grouped
   - security updates arrive immediately (GitHub's default)
 - `.github/pull_request_template.md`: sections **Summary**, **Testing** (commands run and their result), **Risk**, **How to revert**, **Agent session** (link, filled in by agents running in cloud sessions)
