@@ -156,13 +156,13 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] The test checks that `agents-block.md` has one pointer line per guide plus the review line, a separate "Everything else is enforced" line, and the "Done means" list
-- [ ] Exactly one line carries `<!-- nextjs-only -->`, and it's the React pointer
-- [ ] Blueprint's `AGENTS.md` has a Standards section pointing at the five guides and stays under 60 lines
+- [x] The test checks that `agents-block.md` has one pointer line per guide plus the review line, a separate "Everything else is enforced" line, and the "Done means" list
+- [x] Exactly one line carries `<!-- nextjs-only -->`, and it's the React pointer
+- [x] Blueprint's `AGENTS.md` has a Standards section pointing at the five guides and stays under 60 lines
 
 **Verification:**
 
-- [ ] Tests pass: `pnpm test`
+- [x] Tests pass: `pnpm test`
 - [ ] Manual check: a fresh agent session in this repo finds the right guide from AGENTS.md alone
 
 **Dependencies:** Tasks 2–6

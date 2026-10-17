@@ -170,3 +170,46 @@ describe("standards guides", () => {
     expect(withoutCriterion).toEqual([]);
   });
 });
+
+describe("AGENTS.md standards block", () => {
+  const readBlock = async (): Promise<string> => readGuide("agents-block.md");
+
+  it("points at every guide and at the review instructions", async () => {
+    const block = await readBlock();
+    const missing = ALL_GUIDES.filter((guide) => !block.includes(`docs/standards/${guide}`));
+
+    expect(missing).toEqual([]);
+    expect(block).toContain("read REVIEW.md");
+  });
+
+  it("keeps the lint reminder on its own line, outside the pointer list", async () => {
+    expect(await readBlock()).toMatch(/\n\nEverything else is enforced: run `pnpm lint`\.\n/u);
+  });
+
+  it("ends with a four-item Done means checklist", async () => {
+    const doneMeans = (await readBlock()).split("## Done means")[1] ?? "";
+    const items = doneMeans.split("\n").filter((line) => line.startsWith("- "));
+
+    expect(items).toHaveLength(4);
+  });
+
+  it("marks exactly the React pointer as nextjs-only", async () => {
+    const marked = (await readBlock())
+      .split("\n")
+      .filter((line) => line.includes("<!-- nextjs-only -->"));
+
+    expect(marked).toHaveLength(1);
+    expect(marked[0]).toContain("docs/standards/react.md");
+  });
+});
+
+describe("blueprint's own AGENTS.md", () => {
+  it("points at the guides that apply to a ts project and stays under 60 lines", async () => {
+    const agents = await readFile(join(root, "AGENTS.md"), "utf8");
+    const tsGuides = ALL_GUIDES.filter((guide) => guide !== "react.md");
+    const missing = tsGuides.filter((guide) => !agents.includes(`standards/${guide}`));
+
+    expect(missing).toEqual([]);
+    expect(agents.trimEnd().split("\n").length).toBeLessThan(60);
+  });
+});
