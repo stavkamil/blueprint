@@ -83,13 +83,13 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] The required-list entry goes red, then the guide turns it green
-- [ ] Both layouts (nextjs, ts) are described, and the "modules never import each other" rule names where cross-module flows live
-- [ ] Folder trees appear only to define where new code goes, not to mirror the repo
+- [x] The required-list entry goes red, then the guide turns it green
+- [x] Both layouts (nextjs, ts) are described, and the "modules never import each other" rule names where cross-module flows live
+- [x] Folder trees appear only to define where new code goes, not to mirror the repo
 
 **Verification:**
 
-- [ ] Tests pass: `pnpm test`
+- [x] Tests pass: `pnpm test`
 
 **Dependencies:** Task 1
 

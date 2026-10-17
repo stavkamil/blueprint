@@ -15,7 +15,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const standardsDir = join(root, "standards");
 const maxGuideLines = 100;
 
-const REQUIRED_GUIDES: readonly string[] = ["typescript.md", "testing.md"];
+const REQUIRED_GUIDES: readonly string[] = ["typescript.md", "testing.md", "structure.md"];
 
 const ALL_GUIDES = ["typescript.md", "testing.md", "structure.md", "workflow.md", "react.md"];
 
