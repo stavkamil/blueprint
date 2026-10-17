@@ -15,9 +15,17 @@
   "bin": {
     "blueprint": "dist/index.js"
   },
+  "exports": {
+    "./eslint": "./presets/eslint/index.js",
+    "./prettier": "./presets/prettier/index.js",
+    "./tsconfig/*": "./tsconfig/*",
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
-    "standards"
+    "presets",
+    "standards",
+    "tsconfig"
   ],
   "publishConfig": {
     "access": "public"
@@ -39,17 +47,33 @@
     "lint:workflows": "actionlint && zizmor --offline .github/"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
     "@types/node": "^24.19.2",
     "@vitest/coverage-v8": "^5.0.5",
     "eslint": "^10.13.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jsdoc": "^65.3.8",
     "lefthook": "^2.2.2",
     "prettier": "^3.9.10",
     "typescript": "~6.0.3",
-    "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.5",
     "zod": "^4.6.7"
+  },
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitest/eslint-plugin": "^1.6.27",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-barrel-files": "^3.0.1",
+    "eslint-plugin-boundaries": "^7.2.0",
+    "eslint-plugin-check-file": "^3.3.2",
+    "eslint-plugin-jsdoc": "^65.3.8",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "eslint-plugin-testing-library": "^7.16.2",
+    "typescript-eslint": "^8.71.2"
+  },
+  "prettier": "@stavkamil/blueprint/prettier",
+  "peerDependencies": {
+    "eslint": "^10.0.0",
+    "prettier": "^3.0.0",
+    "typescript": ">=6.0.0 <6.1.0",
+    "lefthook": "^2.0.0"
   }
 }
