@@ -31,11 +31,13 @@ They build on established sources rather than inventing rules:
 
 1. Blueprint ships `standards/{typescript,react,testing,structure,workflow}.md`, copied into projects as `docs/standards/`.
 2. Each guide is under 100 lines, with no negative examples. The only prohibitions are the guardrails listed in this spec, each paired with what to do instead.
-3. **Examples pass the standards.** Every `ts`/`tsx` code block in the guides declares the path it would live at (` ```ts title="src/features/cart/get-cart-total.ts" `). A test lints and typechecks each block at that path inside the matching fixture project: React blocks in the nextjs fixture (which has `eslint-config-next` as a blueprint dev dependency), everything else in the ts fixture.
+3. **Examples pass the standards,** checked in two stages:
+   - **Here (done):** every `ts`/`tsx` code block in the guides declares the path it would live at (` ```ts title="src/features/cart/get-cart-total.ts" `). Every `ts` block typechecks under blueprint's strict tsconfig (`tests/standards.spec.ts`).
+   - **In `config-presets`:** every block is linted with the real presets at its path, and the `tsx` (React) blocks typecheck in the nextjs fixture, which brings React's types. Neither can run before the presets and fixtures exist.
 4. **The AGENTS.md standards block** (pointers + "Done means") is defined here, word for word, in `standards/agents-block.md`. `project-template` inserts it between markers, and `doctor --fix` keeps it current.
-5. **Every lint-catalog rule is enforced and tested.** Each rule below maps to a named ESLint rule ID or a TypeScript compiler check (for example `erasableSyntaxOnly`), and to a fixture case in `config-presets`. No rule from the catalog is repeated in a guide.
+5. **Every lint-catalog rule is enforced and tested.** Each rule below maps to a named ESLint rule ID or a TypeScript compiler check (for example `erasableSyntaxOnly`), and to a fixture case in `config-presets` (owned and tested there, through its `catalog-map.ts`). No rule from the catalog is repeated in a guide; `tests/standards.spec.ts` checks the most common restatements.
 6. Every rule in the **guide catalog** appears in exactly one guide.
-7. A manual agent check passes before v1 ships. An agent (Claude Code in a fixture project) completes three tasks: add a feature with a component, add a utility with tests, and fix a bug. Its output passes lint, typecheck and tests, and a reviewer checking the guide catalog finds no violations.
+7. A manual agent check passes before v1 ships, **run after `project-template` exists** (it needs a generated project). An agent (Claude Code in a fixture project) completes three tasks: add a feature with a component, add a utility with tests, and fix a bug. Its output passes lint, typecheck and tests, and a reviewer checking the guide catalog finds no violations.
 
 ## Lint catalog (handed to `config-presets`)
 

@@ -196,6 +196,6 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 ## Checkpoint B: module done (for now)
 
-- [ ] Spec criteria 1, 2, 4 and 6 pass; criterion 3's "now" half passes
-- [ ] Spec updated: criterion 3 split, 5 owned by `config-presets`, 7 after `project-template`
+- [x] Spec criteria 1, 2, 4 and 6 pass; criterion 3's "now" half passes
+- [x] Spec updated: criterion 3 split, 5 owned by `config-presets`, 7 after `project-template`
 - [ ] PR merged; the 1.1.0 release published with the manual npm workaround
