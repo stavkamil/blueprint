@@ -105,12 +105,12 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] The required-list entry goes red, then the guide turns it green
-- [ ] Five steps (branch, checks, title, template, review findings), each with a "Done when" line (checked by the test)
+- [x] The required-list entry goes red, then the guide turns it green
+- [x] Five steps (branch, checks, title, template, review findings), each with a "Done when" line (checked by the test)
 
 **Verification:**
 
-- [ ] Tests pass: `pnpm test`
+- [x] Tests pass: `pnpm test`
 
 **Dependencies:** Task 1
 

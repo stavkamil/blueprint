@@ -15,7 +15,12 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const standardsDir = join(root, "standards");
 const maxGuideLines = 100;
 
-const REQUIRED_GUIDES: readonly string[] = ["typescript.md", "testing.md", "structure.md"];
+const REQUIRED_GUIDES: readonly string[] = [
+  "typescript.md",
+  "testing.md",
+  "structure.md",
+  "workflow.md",
+];
 
 const ALL_GUIDES = ["typescript.md", "testing.md", "structure.md", "workflow.md", "react.md"];
 
@@ -152,5 +157,15 @@ describe("standards guides", () => {
 
       expect([...foreign, ...lintOnly]).toEqual([]);
     });
+  });
+
+  it("ends every workflow step with a checkable completion criterion", async () => {
+    const steps = (await readGuide("workflow.md"))
+      .split("\n")
+      .filter((line) => /^\d+\.\s/u.test(line));
+    const withoutCriterion = steps.filter((step) => !step.includes("Done when:"));
+
+    expect(steps).toHaveLength(5);
+    expect(withoutCriterion).toEqual([]);
   });
 });
