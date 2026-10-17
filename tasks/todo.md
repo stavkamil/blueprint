@@ -128,13 +128,13 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Acceptance criteria:**
 
-- [ ] `AGENTS.md` (under 60 lines): commands, boundaries from the spec, pointers to `docs/specs/` and `tasks/`, and a "Done means" checklist. `CLAUDE.md` is exactly `@AGENTS.md`
-- [ ] `README.md` (what, install, use), `LICENSE` (MIT), `.github/pull_request_template.md` (Summary, Testing, Risk, How to revert, Agent session)
-- [ ] `docs/maintainer-setup.md` holds the spec's one-time setup steps, each with a check
+- [x] `AGENTS.md` (under 60 lines): commands, boundaries from the spec, pointers to `docs/specs/` and `tasks/`, and a "Done means" checklist. `CLAUDE.md` is exactly `@AGENTS.md`
+- [x] `README.md` (what, install, use), `LICENSE` (MIT), `.github/pull_request_template.md` (Summary, Testing, Risk, How to revert, Agent session)
+- [x] `docs/maintainer-setup.md` holds the spec's one-time setup steps, each with a check
 
 **Verification:**
 
-- [ ] Manual check: Prettier passes on the docs, and a fresh agent session can find the commands and boundaries from AGENTS.md alone
+- [x] Manual check: Prettier passes on the docs, and a fresh agent session can find the commands and boundaries from AGENTS.md alone
 
 **Dependencies:** Task 2
 
@@ -259,19 +259,20 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 ## Task 10: Your one-time setup (you)
 
-**Description:** I give you exact steps from `docs/maintainer-setup.md`, and you do them:
+**Description:** Following `docs/maintainer-setup.md` steps 3–6:
 
-1. Create the `blueprint-release` GitHub App and install it on all repositories.
-2. Add `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` as repo secrets.
-3. `npm login` with 2FA, then `npm publish` of `0.0.0` from a clean build.
-4. Add the trusted publisher (`stavkamil/blueprint`, `release.yml`).
-5. Set "Require 2FA and disallow tokens".
+1. You create the `blueprint-release` GitHub App, install it on all repositories, and add `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` as repo secrets.
+2. The foundation PR is merged, and release-please opens "release 1.0.0" (left open).
+3. You run `npm login` (2FA) and `npm publish` of `0.0.0` from `main`, so the package exists.
+4. You add the trusted publisher (`stavkamil/blueprint`, `release.yml`) and set "Require 2FA and disallow tokens".
+
+The npm name can only be claimed once `main` contains the package, so the bootstrap publish comes after the foundation PR merges.
 
 **Acceptance criteria:**
 
 - [ ] `gh secret list -R stavkamil/blueprint` shows both release secrets
-- [ ] `npm view @stavkamil/blueprint version` prints `0.0.0`; trusted publisher configured
-- [ ] Done in the same sitting as task 11 (2-day window)
+- [ ] "release 1.0.0" PR is open with CI run on it
+- [ ] `npm view @stavkamil/blueprint version` prints `0.0.0`; trusted publisher configured; same sitting as task 11 (2-day window)
 
 **Verification:**
 
@@ -287,12 +288,12 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 ## Task 11: Prove the pipeline
 
-**Description:** Merge the foundation PR and check that the pipeline does its job end to end.
+**Description:** Prove the guardrails, then ship the first release.
 
 **Acceptance criteria:**
 
 - [ ] A throwaway PR with a bad title, a failing test, or a fake secret is blocked, and each failure says how to fix it (then closed)
-- [ ] After merging the foundation PR, release-please opens "release 1.0.0" **and CI runs on it**; merging it publishes `1.0.0` with provenance and creates `v1.0.0` + `v1`
+- [ ] Merging the "release 1.0.0" PR publishes `1.0.0` with provenance and creates `v1.0.0` + `v1`
 - [ ] `pnpm dlx @stavkamil/blueprint@1 --version` prints `1.0.0` from a folder outside the repo; a follow-up PR removes `release-as`
 
 **Verification:**
