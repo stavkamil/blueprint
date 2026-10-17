@@ -156,13 +156,13 @@ Plan: [plan.md](plan.md). Spec: [SPEC-repo-foundation.md](../docs/specs/SPEC-rep
 
 **Acceptance criteria:**
 
-- [ ] Top-level `permissions: {}`; each job grants only what it needs; every third-party action pinned by full SHA with a version comment; checkouts use `persist-credentials: false`
-- [ ] `ci-ok` uses `if: always()` and fails when any dependency failed or was cancelled (skipped counts as pass)
-- [ ] `pnpm lint:workflows` (actionlint + zizmor) reports zero findings
+- [x] Top-level `permissions: {}`; each job grants only what it needs; every third-party action pinned by full SHA with a version comment; checkouts use `persist-credentials: false`
+- [x] `ci-ok` uses `if: always()` and fails when any dependency failed or was cancelled (skipped counts as pass)
+- [x] `pnpm lint:workflows` (actionlint + zizmor) reports zero findings
 
 **Verification:**
 
-- [ ] Manual check: `pnpm lint:workflows`
+- [x] Manual check: `pnpm lint:workflows`
 - [ ] Real run happens in task 11
 
 **Dependencies:** Tasks 0, 3

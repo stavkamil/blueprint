@@ -20,7 +20,8 @@
     "test:watch": "vitest",
     "build": "tsc -p tsconfig.build.json",
     "smoke": "pnpm build && node scripts/smoke.ts",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "lint:workflows": "actionlint && zizmor --offline .github/"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
