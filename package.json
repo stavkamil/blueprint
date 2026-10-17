@@ -1,6 +1,6 @@
 {
   "name": "@stavkamil/blueprint",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Sets up an agent-first SDLC and CI/CD environment for new TypeScript projects.",
   "license": "MIT",
   "repository": {

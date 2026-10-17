@@ -95,3 +95,37 @@ Merge the "release 1.0.0" PR from step 4. The release workflow publishes through
 - `pnpm dlx @stavkamil/blueprint@1 --version` prints `1.0.0` outside the repo
 
 Then remove `release-as` from `release-please-config.json` in a follow-up PR.
+
+## Known issue: publish fails with "OIDC permission denied" (since 2026-10)
+
+**Symptom:** the `publish` job of `release.yml` fails with
+`403 Forbidden … OIDC permission denied for this action`, even though the trusted publisher allows publishing. The
+provenance step before it succeeds.
+
+**Cause:** GitHub gives repositories created after 2026-07-15 an immutable OIDC subject
+(`repo:stavkamil@56508560/blueprint@1423650112:…` instead of `repo:stavkamil/blueprint:…`). npm's trusted publishing
+doesn't accept that format yet: [npm/cli#9969](https://github.com/npm/cli/issues/9969), open. Switching the repo back
+with `PUT /repos/{owner}/{repo}/actions/oidc/customization/sub` (`use_immutable_subject=false`) doesn't take effect;
+tried on 2026-10-17.
+
+**Workaround for each release until npm fixes it** (no tokens; uses your 2FA):
+
+1. Let the release run fail at `publish`. The GitHub release and the `vX.Y.Z` tag already exist.
+2. Publish that exact commit by hand:
+
+   ```bash
+   git fetch --tags && git switch --detach vX.Y.Z && pnpm install --frozen-lockfile && pnpm build && npm publish --access public && git switch main
+   ```
+
+3. Point the major tag at it (normally the `move-major-tag` job's work):
+
+   ```bash
+   gh api repos/stavkamil/blueprint/git/ref/tags/vX.Y.Z --jq .object.sha
+   gh api --method POST repos/stavkamil/blueprint/git/refs -f ref=refs/tags/vMAJOR -f sha=<that sha>
+   ```
+
+   Once `vMAJOR` exists, move it instead:
+   `gh api --method PATCH repos/stavkamil/blueprint/git/refs/tags/vMAJOR -f sha=<sha> -F force=true`.
+
+Hand-published versions have no provenance badge. **Once npm/cli#9969 is fixed**, re-run the failed `publish` job of
+the next release to confirm trusted publishing works, then delete this section.
