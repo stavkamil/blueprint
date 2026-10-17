@@ -11,18 +11,18 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] For each guide in the required list, the test checks:
+- [x] For each guide in the required list, the test checks:
   - the file exists and is under 100 lines
   - no ❌ markers or negative-example headings
   - every `ts`/`tsx` code block has a `title="<path>"`
   - every `ts` block typechecks under blueprint's strict tsconfig in a temp folder
-- [ ] Rule-placement check: each guide-catalog rule's key phrase appears in exactly its one guide (catalog-to-guide keyword map in the test)
-- [ ] `vitest.config.ts` and `tsconfig.json` include `tests/`; coverage still measures `src/` only; the spec's AGENTS block shows "Everything else is enforced" as its own line
+- [x] Rule-placement check: each guide-catalog rule's key phrase appears in exactly its one guide (catalog-to-guide keyword map in the test)
+- [x] `vitest.config.ts` and `tsconfig.json` include `tests/`; coverage still measures `src/` only; the spec's AGENTS block shows "Everything else is enforced" as its own line
 
 **Verification:**
 
-- [ ] Tests pass: `pnpm test` (the required list is empty, so the guide checks run but find nothing)
-- [ ] Manual check: putting a fake guide in the list makes the test fail with a clear message, then revert
+- [x] Tests pass: `pnpm test` (the required list is empty, so the guide checks run but find nothing)
+- [x] Manual check: putting a fake guide in the list makes the test fail with a clear message, then revert
 
 **Dependencies:** None
 

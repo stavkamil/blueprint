@@ -153,7 +153,8 @@ The React layer must configure those plugins' rules without registering them aga
 - **Adding files or folders** → read docs/standards/structure.md
 - **Opening a PR** → read docs/standards/workflow.md
 - **Reviewing a PR** → read REVIEW.md, then judge against docs/standards/
-  Everything else is enforced: run `pnpm lint`.
+
+Everything else is enforced: run `pnpm lint`.
 
 ## Done means
 
