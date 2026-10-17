@@ -6,6 +6,7 @@ Module 7 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-tem
 ## Objective
 
 `blueprint new` turns one command into a fully set-up project:
+
 - scaffolded by type
 - verified locally
 - committed
@@ -19,6 +20,7 @@ terminal, from the skill, or from a script.
 
 **Scope:** flags, preflight checks, the step sequence, failure handling and `--resume`, output, and the end-to-end self-test.
 **Out of scope:**
+
 - the interview (`new-project-skill`)
 - file contents (`project-template`)
 - checks and fixes (`cli-doctor`)
@@ -35,6 +37,7 @@ terminal, from the skill, or from a script.
    - `blueprint doctor` passing, with `app.claude` pending until the first review
 
    CI runs on the first PR and `ci / ci-ok` passes.
+
 4. **Preflight refuses before anything is created.** No folder, files or repo appear when any of these fail:
    - invalid name
    - existing non-empty folder
@@ -44,6 +47,7 @@ terminal, from the skill, or from a script.
    - Node older than 22.18
 
    Each failure prints its fix.
+
 5. **Local verification gate.** If lint, typecheck, test or build fails on the fresh project (a blueprint bug), the run stops **before** any GitHub repo is created, keeps the folder for inspection, and says so.
 6. **Resumable after GitHub.**
    - Any failure at or after the "Create repo" step is resumable: the message says exactly `blueprint new <name> --resume`.
@@ -60,36 +64,37 @@ blueprint new <name> --description "<one line>" [--type ts|nextjs] [--release] [
 blueprint new <name> --resume [--dir <parent>] [--json]
 ```
 
-| Flag | Default | Meaning |
-|---|---|---|
-| `<name>` | required | kebab-case, 1–100 chars; becomes the folder, package and repo name |
-| `--description` | required (except with `--resume`) | one line for AGENTS.md, README, `package.json` and the GitHub repo description |
-| `--type` | `ts` | `ts` or `nextjs` |
-| `--release` | off | adds release-please and sets the release-app secrets |
-| `--public` | off (private) | creates a public repo |
-| `--no-github` | off | stops after the local commit (used by the self-test) |
-| `--resume` | off | continues a run that stopped at or after creating the repo; options are read back from the project |
-| `--dir` | current directory | parent folder for the project |
-| `--json` | off | machine-readable result, no progress lines |
+| Flag            | Default                           | Meaning                                                                                            |
+| --------------- | --------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `<name>`        | required                          | kebab-case, 1–100 chars; becomes the folder, package and repo name                                 |
+| `--description` | required (except with `--resume`) | one line for AGENTS.md, README, `package.json` and the GitHub repo description                     |
+| `--type`        | `ts`                              | `ts` or `nextjs`                                                                                   |
+| `--release`     | off                               | adds release-please and sets the release-app secrets                                               |
+| `--public`      | off (private)                     | creates a public repo                                                                              |
+| `--no-github`   | off                               | stops after the local commit (used by the self-test)                                               |
+| `--resume`      | off                               | continues a run that stopped at or after creating the repo; options are read back from the project |
+| `--dir`         | current directory                 | parent folder for the project                                                                      |
+| `--json`        | off                               | machine-readable result, no progress lines                                                         |
 
 **Exit codes:**
+
 - `0`: success (manual steps may remain)
 - `1`: failed after creating something. The output says whether it's resumable and how.
 - `2`: preflight refused, nothing created
 
 ## Step sequence
 
-| # | Step | Details | On failure |
-|---|---|---|---|
-| 0 | **Preflight** | name valid; target folder absent or empty; tools present: `node ≥ 22.18`, `pnpm`, `git` with `user.name`/`user.email`, `gitleaks`, and `gh` logged in unless `--no-github`; `gh repo view <owner>/<name>` returns not-found; Keychain items present (missing ones → listed in manual steps) | exit 2, nothing created |
-| 1 | **Scaffold** | **ts:** create the folder and write `renderTemplate(...)`. **nextjs:** run create-next-app (flags below), then write the overlay, merge `package.json` and upsert the blueprint block into AGENTS.md | exit 1, not resumable; keep folder |
-| 2 | **Init git** | `git init -b main` (before install, so hooks can be installed) | exit 1, not resumable |
-| 3 | **Install** | `pnpm install` (creates the lockfile; `prepare` runs `lefthook install`) | exit 1, not resumable |
-| 4 | **Verify** | `pnpm lint && pnpm typecheck && pnpm test && pnpm build` | exit 1, not resumable; "this is a blueprint bug" with the failing output |
-| 5 | **Commit** | `git add -A`, commit `chore: initial commit from blueprint v<version>` (hooks run, including gitleaks) | exit 1, not resumable |
-| 6 | **Create repo** | `gh repo create <name> --private\|--public --description … --source . --push` | exit 1, resumable |
-| 7 | **Secure** | `runDoctor({ fix: true })`: settings, ruleset (after the push, since the ruleset blocks direct pushes to `main`), Actions permissions, Dependabot security, secrets from the Keychain | exit 1, resumable |
-| 8 | **Report** | `runDoctor()` once more; print summary and manual steps | — |
+| #   | Step            | Details                                                                                                                                                                                                                                                                                     | On failure                                                               |
+| --- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 0   | **Preflight**   | name valid; target folder absent or empty; tools present: `node ≥ 22.18`, `pnpm`, `git` with `user.name`/`user.email`, `gitleaks`, and `gh` logged in unless `--no-github`; `gh repo view <owner>/<name>` returns not-found; Keychain items present (missing ones → listed in manual steps) | exit 2, nothing created                                                  |
+| 1   | **Scaffold**    | **ts:** create the folder and write `renderTemplate(...)`. **nextjs:** run create-next-app (flags below), then write the overlay, merge `package.json` and upsert the blueprint block into AGENTS.md                                                                                        | exit 1, not resumable; keep folder                                       |
+| 2   | **Init git**    | `git init -b main` (before install, so hooks can be installed)                                                                                                                                                                                                                              | exit 1, not resumable                                                    |
+| 3   | **Install**     | `pnpm install` (creates the lockfile; `prepare` runs `lefthook install`)                                                                                                                                                                                                                    | exit 1, not resumable                                                    |
+| 4   | **Verify**      | `pnpm lint && pnpm typecheck && pnpm test && pnpm build`                                                                                                                                                                                                                                    | exit 1, not resumable; "this is a blueprint bug" with the failing output |
+| 5   | **Commit**      | `git add -A`, commit `chore: initial commit from blueprint v<version>` (hooks run, including gitleaks)                                                                                                                                                                                      | exit 1, not resumable                                                    |
+| 6   | **Create repo** | `gh repo create <name> --private\|--public --description … --source . --push`                                                                                                                                                                                                               | exit 1, resumable                                                        |
+| 7   | **Secure**      | `runDoctor({ fix: true })`: settings, ruleset (after the push, since the ruleset blocks direct pushes to `main`), Actions permissions, Dependabot security, secrets from the Keychain                                                                                                       | exit 1, resumable                                                        |
+| 8   | **Report**      | `runDoctor()` once more; print summary and manual steps                                                                                                                                                                                                                                     | —                                                                        |
 
 Steps 6–8 are skipped with `--no-github`.
 
@@ -99,6 +104,7 @@ Steps 6–8 are skipped with `--no-github`.
 pnpm create next-app@<pinned major> <name> --ts --tailwind --eslint --no-react-compiler --app --src-dir \
   --cache-components --import-alias "@/*" --use-pnpm --agents-md --no-agent-feedback --skip-install --disable-git --yes
 ```
+
 The pinned major is a constant in blueprint. The weekly nextjs end-to-end job (project-template) catches breaking
 changes to flags or output.
 
@@ -112,7 +118,15 @@ changes to flags or output.
 
 ```ts
 /** Ordered local setup steps; the runner stops at the first failure and reports whether it can be resumed. */
-export const scaffoldSteps: readonly Step[] = [preflight, scaffold, initGit, install, verify, commit, createRepo];
+export const scaffoldSteps: readonly Step[] = [
+  preflight,
+  scaffold,
+  initGit,
+  install,
+  verify,
+  commit,
+  createRepo,
+];
 ```
 
 ## Project Structure
@@ -137,6 +151,7 @@ tests/e2e/new.spec.ts             → criteria 1, 2, 4, 5 (no GitHub)
   - `--json` shape (criterion 7)
 
   The process runner is a fake that records calls, so tests assert that `gh repo create` never runs after a failed verify step, and that a resumed run skips steps whose result exists.
+
 - **End-to-end, no GitHub:**
   - `ts` runs in the normal CI job against the locally packed tarball.
   - `nextjs` runs in the network CI job (same schedule as project-template's).

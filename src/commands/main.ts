@@ -56,7 +56,11 @@ export const run = async (argv: readonly string[], io: Io = processIo): Promise<
       io.stderr(error.hint);
       return 1;
     }
-    if (error instanceof TypeError && "code" in error && error.code === "ERR_PARSE_ARGS_UNKNOWN_OPTION") {
+    if (
+      error instanceof TypeError &&
+      "code" in error &&
+      error.code === "ERR_PARSE_ARGS_UNKNOWN_OPTION"
+    ) {
       const option = /'([^']+)'/u.exec(error.message)?.[1] ?? "option";
       io.stderr(`Unknown option '${option}'.`);
       io.stderr(helpHint);

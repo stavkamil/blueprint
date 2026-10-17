@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { run } from "./main.ts";
 
-const makeIo = (): { readonly out: string[]; readonly err: string[]; readonly io: Parameters<typeof run>[1] } => {
+const makeIo = (): {
+  readonly out: string[];
+  readonly err: string[];
+  readonly io: Parameters<typeof run>[1];
+} => {
   const out: string[] = [];
   const err: string[] = [];
   return {
@@ -53,7 +57,10 @@ describe("run", () => {
     const exitCode = await run(["--nope"], io);
 
     expect(exitCode).toBe(1);
-    expect(err).toEqual(["Unknown option '--nope'.", "Run `blueprint --help` to see what's available."]);
+    expect(err).toEqual([
+      "Unknown option '--nope'.",
+      "Run `blueprint --help` to see what's available.",
+    ]);
   });
 
   it("rejects an unknown command and points to --help", async () => {

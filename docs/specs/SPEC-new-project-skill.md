@@ -5,10 +5,12 @@ Module 8 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `cli-new`.
 ## Objective
 
 Give you two things:
+
 1. **The `/new-project` skill.** You type it in Claude Code, answer a few questions, approve one command, and get a fully set-up project.
 2. **Two guides:** the **one-time setup** that makes everything else work, and **working from your phone**.
 
 The skill is written with the [writing-for-agents](https://github.com/mattpocock/skills/blob/main/skills/productivity/writing-for-agents/SKILL.md) principles:
+
 - user-invoked, so it costs no context until you call it
 - ordered steps, each with a checkable completion criterion
 - positive instructions
@@ -18,6 +20,7 @@ The skill is written with the [writing-for-agents](https://github.com/mattpocock
 
 **Scope:** `skill/new-project/SKILL.md`, `docs/setup.md`, `docs/phone.md`, and how the skill is installed.
 **Out of scope:**
+
 - what the CLI does (`cli-new`, `cli-doctor`)
 - creating projects from cloud sessions: user skills don't load there, and project creation needs your Keychain and `gh` login
 
@@ -39,6 +42,7 @@ The skill is written with the [writing-for-agents](https://github.com/mattpocock
 Updating the blueprint repo updates the skill.
 
 **Frontmatter:**
+
 ```yaml
 ---
 name: new-project
@@ -56,16 +60,18 @@ disable-model-invocation: true
    - visibility (private by default)
    - releases (off by default; on for packages you'll publish)
 
-   *Done when:* all five values are known and the name matches `^[a-z0-9]+(-[a-z0-9]+)*$`.
+   _Done when:_ all five values are known and the name matches `^[a-z0-9]+(-[a-z0-9]+)*$`.
+
 2. **Confirm.** Show the exact command (`pnpm dlx @stavkamil/blueprint@1 new … --json`) and the folder it will create in, and ask for approval.
-   *Done when:* you've explicitly approved this command.
+   _Done when:_ you've explicitly approved this command.
 3. **Create.** Run the command from `~/Projects`.
-   *Done when:* the JSON result is parsed (whether it succeeded or not).
+   _Done when:_ the JSON result is parsed (whether it succeeded or not).
 4. **Report.** On success: the repo URL, every `manualSteps` item as a checklist, and one next step ("open `~/Projects/<name>` in Claude Code and start with a spec"). On failure: the step that failed, its message, and either `resumeCommand` (resumable) or the kept folder to inspect (not resumable).
-   *Done when:* every `manualSteps` item, or the resume command or folder path, is in your reply.
+   _Done when:_ every `manualSteps` item, or the resume command or folder path, is in your reply.
 
 **Writing rules for the body:**
-- Leading words: *gather*, *confirm*, *create*, *report*.
+
+- Leading words: _gather_, _confirm_, _create_, _report_.
 - Type guidance is a single line.
 - No restating of CLI flags beyond the one command.
 - The only prohibition is the guardrail in step 2 (run only after approval), phrased as what to do.
@@ -74,20 +80,21 @@ disable-model-invocation: true
 
 Ordered steps, each with a check you can run. **Done when** every check passes.
 
-| # | Step | Check |
-|---|---|---|
-| 1 | Upgrade GitHub to **Pro** (rulesets on private repos) | github.com/settings/billing shows Pro |
-| 2 | Install tools: `brew install gh gitleaks fnm`, `fnm install 24`, `corepack enable pnpm`; set your git identity (`git config --global user.name …` / `user.email …`) | `gh --version`, `gitleaks version`, `node -v` (24.x), `pnpm -v`, `git config user.email` |
-| 3 | `gh auth login` (HTTPS, browser) | `gh auth status` |
-| 4 | Install the **Claude GitHub App** for **All repositories** | github.com/settings/installations lists Claude, set to all repositories |
-| 5 | Create a **Claude token** for CI: `claude setup-token`, then save it with its creation date: `security add-generic-password -s blueprint -a claude-oauth-token -j "created:$(date +%F)" -w`. With no value after `-w`, it prompts, so the token stays out of shell history. Repeat yearly, then run `blueprint doctor --fix` in each repo | `security find-generic-password -s blueprint -a claude-oauth-token` finds it, with the `created:` comment |
-| 6 | **Optional, only before your first `--release` project.** Use the `blueprint-release` GitHub App (created in blueprint's maintainer setup; Contents + Pull requests: read & write; installed on all repositories). Save its ID: `security add-generic-password -s blueprint -a release-app-id -w`. Save its private key base64-encoded, since the PEM spans multiple lines: `security add-generic-password -s blueprint -a release-app-key -w "$(base64 -i <key>.pem)"`. Then delete the `.pem` file | both Keychain items are found |
-| 7 | Create the **cloud environment** at claude.ai/code: network **Trusted**, plus the **setup script** below | a new cloud session on any blueprint repo runs `pnpm test` successfully |
-| 8 | Claude Code settings: **Remote Control for all sessions** (Desktop: Settings → Claude Code), **Require trusted devices** (claude.ai settings), auto permission mode | the Claude app shows your running local session |
-| 9 | Install the skill (symlink above) | `/new-project` appears in Claude Code's command list |
-| 10 | Smoke test: `pnpm dlx @stavkamil/blueprint@1 new setup-check --type ts --description "setup check" --no-github` in a temp folder | it succeeds; delete the folder afterwards |
+| #   | Step                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Check                                                                                                     |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1   | Upgrade GitHub to **Pro** (rulesets on private repos)                                                                                                                                                                                                                                                                                                                                                                                                                                                | github.com/settings/billing shows Pro                                                                     |
+| 2   | Install tools: `brew install gh gitleaks fnm`, `fnm install 24`, `corepack enable pnpm`; set your git identity (`git config --global user.name …` / `user.email …`)                                                                                                                                                                                                                                                                                                                                  | `gh --version`, `gitleaks version`, `node -v` (24.x), `pnpm -v`, `git config user.email`                  |
+| 3   | `gh auth login` (HTTPS, browser)                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | `gh auth status`                                                                                          |
+| 4   | Install the **Claude GitHub App** for **All repositories**                                                                                                                                                                                                                                                                                                                                                                                                                                           | github.com/settings/installations lists Claude, set to all repositories                                   |
+| 5   | Create a **Claude token** for CI: `claude setup-token`, then save it with its creation date: `security add-generic-password -s blueprint -a claude-oauth-token -j "created:$(date +%F)" -w`. With no value after `-w`, it prompts, so the token stays out of shell history. Repeat yearly, then run `blueprint doctor --fix` in each repo                                                                                                                                                            | `security find-generic-password -s blueprint -a claude-oauth-token` finds it, with the `created:` comment |
+| 6   | **Optional, only before your first `--release` project.** Use the `blueprint-release` GitHub App (created in blueprint's maintainer setup; Contents + Pull requests: read & write; installed on all repositories). Save its ID: `security add-generic-password -s blueprint -a release-app-id -w`. Save its private key base64-encoded, since the PEM spans multiple lines: `security add-generic-password -s blueprint -a release-app-key -w "$(base64 -i <key>.pem)"`. Then delete the `.pem` file | both Keychain items are found                                                                             |
+| 7   | Create the **cloud environment** at claude.ai/code: network **Trusted**, plus the **setup script** below                                                                                                                                                                                                                                                                                                                                                                                             | a new cloud session on any blueprint repo runs `pnpm test` successfully                                   |
+| 8   | Claude Code settings: **Remote Control for all sessions** (Desktop: Settings → Claude Code), **Require trusted devices** (claude.ai settings), auto permission mode                                                                                                                                                                                                                                                                                                                                  | the Claude app shows your running local session                                                           |
+| 9   | Install the skill (symlink above)                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | `/new-project` appears in Claude Code's command list                                                      |
+| 10  | Smoke test: `pnpm dlx @stavkamil/blueprint@1 new setup-check --type ts --description "setup check" --no-github` in a temp folder                                                                                                                                                                                                                                                                                                                                                                     | it succeeds; delete the folder afterwards                                                                 |
 
 **Cloud environment setup script** (cached by the environment, so it runs about once a week):
+
 ```bash
 #!/bin/bash
 set -euo pipefail
@@ -99,15 +106,17 @@ GITLEAKS_VERSION=<pinned>   # set at implementation, with checksum verification
 curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
   | tar -xz -C /usr/local/bin gitleaks
 ```
+
 The exact script, including checksum verification and the pinned gitleaks version, is finalized and tested at
 implementation (check 7). Each project's SessionStart hook then installs dependencies.
 
 ## `docs/phone.md`: working from your phone
 
 Short sections, each tied to a task:
+
 - **Start or steer work:** Claude app → Code → a cloud session or Project on the repo. Work continues with your laptop closed. Answer questions and approvals inside the session or thread that asks.
 - **Use your Mac from the phone:** sessions on the Mac appear in the Claude app (Remote Control, set up in step 8). This is how to run `/new-project` from the phone. The Mac must be awake.
-- **Get told when something needs you:** GitHub Mobile with notifications set to *Participating* plus *Pull requests* and *failed workflows* for your repos. A PR from an agent arrives as a notification.
+- **Get told when something needs you:** GitHub Mobile with notifications set to _Participating_ plus _Pull requests_ and _failed workflows_ for your repos. A PR from an agent arrives as a notification.
 - **Review and merge:** open the PR in GitHub Mobile, read the AI review and the CI result, resolve threads, and merge (squash). Ask for fixes by commenting `@claude …` or by turning on Auto-fix in the Claude app.
 - **What only works on the Mac:** creating projects (the Keychain and `gh` live there), and running `blueprint doctor --fix`.
 

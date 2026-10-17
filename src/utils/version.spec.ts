@@ -27,9 +27,9 @@ describe("readPackageVersion", () => {
   it("throws a BlueprintError with a hint when the version is missing", async () => {
     const url = await writePackageJson(JSON.stringify({ name: "x" }));
 
-    const result = readPackageVersion(url);
+    const error: unknown = await readPackageVersion(url).catch((caught: unknown) => caught);
 
-    await expect(result).rejects.toBeInstanceOf(BlueprintError);
-    await expect(result).rejects.toMatchObject({ hint: expect.stringContaining("Reinstall") });
+    expect(error).toBeInstanceOf(BlueprintError);
+    expect(error instanceof BlueprintError && error.hint).toContain("Reinstall");
   });
 });

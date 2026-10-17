@@ -6,6 +6,7 @@ Module 6 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-tem
 
 `blueprint doctor` checks that a project still matches the blueprint setup, locally and on GitHub. `--fix` repairs
 what blueprint owns. It's the single place that knows what "correctly set up" means:
+
 - `blueprint new` ends by running it
 - you run it any time something feels off
 - CI runs its local part without ever failing the job
@@ -15,6 +16,7 @@ what blueprint owns. It's the single place that knows what "correctly set up" me
 
 **Scope:** the check catalog, the fixes, output and exit codes, and secret handling.
 **Out of scope:**
+
 - creating projects and repos (`cli-new`)
 - the template contents (`project-template`)
 - scanning all your repos at once (v2)
@@ -25,7 +27,7 @@ what blueprint owns. It's the single place that knows what "correctly set up" me
    - `app.claude` reports **pending** until the first AI review has run.
    - A project with no GitHub remote runs local checks only and says so in one line.
 2. **Every check has a failing test** that triggers it and asserts the message and the exact fix command.
-3. **`--fix` repairs and is idempotent.** It repairs every check marked *auto*, then re-runs the checks. Running it twice in a row makes no changes and no API writes the second time.
+3. **`--fix` repairs and is idempotent.** It repairs every check marked _auto_, then re-runs the checks. Running it twice in a row makes no changes and no API writes the second time.
 4. **Owned paths only.** `--fix` never modifies a project-owned file. It may:
    - create a **missing** project file from the template (never overwriting)
    - replace blueprint-owned paths and the marked `blueprint-standards` block in `AGENTS.md`
@@ -47,6 +49,7 @@ blueprint doctor --fix --type ts|nextjs --description "…"   # adopting an exis
 ```
 
 **Exit codes:**
+
 - `0`: no errors (warnings and pending allowed); always `0` with `--ci`
 - `1`: at least one error
 - `2`: doctor couldn't run (not a git repo; `gh` missing or logged out while a GitHub remote exists; project options not derivable and not given). Every exit-2 message includes the command that fixes it.
@@ -61,37 +64,38 @@ Fix: **auto** = `--fix` does it. **manual** = doctor prints the exact command or
 
 ### Local (no network)
 
-| ID | Checks | Severity | Fix |
-|---|---|---|---|
-| `files.required` | Every project file from the template exists (AGENTS.md, CLAUDE.md, REVIEW.md, configs, CI callers, Dependabot, PR template, `.claude/settings.json` and hooks) | error | auto: create missing files only |
-| `agents.block` | AGENTS.md has the `blueprint-standards` block, identical to the installed version's | warning | auto: upsert the block |
-| `agents.claude-md` | `CLAUDE.md` contains exactly `@AGENTS.md`. More content would make it the real instructions and hide AGENTS.md from other agents | error | manual: move content into AGENTS.md and reduce CLAUDE.md to `@AGENTS.md` |
-| `docs.current` | `docs/standards/` and `docs/blueprint.md` match the installed package's copies | warning | auto: replace both |
-| `ci.callers` | `ci.yml` and `ai-review.yml` (and `release.yml` with release) call `stavkamil/blueprint/.github/workflows/reusable-*.yml@v<installed major>` and pass secrets by name | error | manual: show the expected caller file |
-| `package.scripts` | `lint`, `typecheck`, `test`, `build` and `prepare` exist; `test` runs coverage | error | manual: show the expected entries |
-| `package.preset` | `@stavkamil/blueprint` is a devDependency and `node_modules` holds the version in the lockfile | error | manual: the exact `pnpm add -D …` / `pnpm install` command |
-| `hooks.installed` | `.git/hooks/pre-commit` and `pre-push` are lefthook's | error | auto: `pnpm exec lefthook install` |
-| `claude.settings` | `.claude/settings.json` contains the required deny and ask rules (other entries are free) | error | manual: print the missing lines |
-| `gitleaks.available` | the `gitleaks` binary is on PATH (skipped in `--ci`, where CI installs it) | warning | manual: `brew install gitleaks` |
+| ID                   | Checks                                                                                                                                                                | Severity | Fix                                                                      |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------ |
+| `files.required`     | Every project file from the template exists (AGENTS.md, CLAUDE.md, REVIEW.md, configs, CI callers, Dependabot, PR template, `.claude/settings.json` and hooks)        | error    | auto: create missing files only                                          |
+| `agents.block`       | AGENTS.md has the `blueprint-standards` block, identical to the installed version's                                                                                   | warning  | auto: upsert the block                                                   |
+| `agents.claude-md`   | `CLAUDE.md` contains exactly `@AGENTS.md`. More content would make it the real instructions and hide AGENTS.md from other agents                                      | error    | manual: move content into AGENTS.md and reduce CLAUDE.md to `@AGENTS.md` |
+| `docs.current`       | `docs/standards/` and `docs/blueprint.md` match the installed package's copies                                                                                        | warning  | auto: replace both                                                       |
+| `ci.callers`         | `ci.yml` and `ai-review.yml` (and `release.yml` with release) call `stavkamil/blueprint/.github/workflows/reusable-*.yml@v<installed major>` and pass secrets by name | error    | manual: show the expected caller file                                    |
+| `package.scripts`    | `lint`, `typecheck`, `test`, `build` and `prepare` exist; `test` runs coverage                                                                                        | error    | manual: show the expected entries                                        |
+| `package.preset`     | `@stavkamil/blueprint` is a devDependency and `node_modules` holds the version in the lockfile                                                                        | error    | manual: the exact `pnpm add -D …` / `pnpm install` command               |
+| `hooks.installed`    | `.git/hooks/pre-commit` and `pre-push` are lefthook's                                                                                                                 | error    | auto: `pnpm exec lefthook install`                                       |
+| `claude.settings`    | `.claude/settings.json` contains the required deny and ask rules (other entries are free)                                                                             | error    | manual: print the missing lines                                          |
+| `gitleaks.available` | the `gitleaks` binary is on PATH (skipped in `--ci`, where CI installs it)                                                                                            | warning  | manual: `brew install gitleaks`                                          |
 
 ### GitHub (via `gh`, using your login; skipped when there's no `origin` remote on github.com)
 
-| ID | Checks | Severity | Fix |
-|---|---|---|---|
-| `gh.ready` | `gh` is installed and logged in, and `origin` is a github.com repo you own | exit 2 | manual: `gh auth login` |
-| `repo.merge` | squash merge only; squash title = PR title, message = PR body; delete branch on merge | error | auto: `PATCH /repos/{owner}/{repo}` |
-| `repo.ruleset` | ruleset `blueprint-main` on the default branch, no bypass actors, with: PR required (0 approvals, since you can't approve your own PRs), conversation resolution required, required check `ci / ci-ok` with up-to-date branches, force-push and deletion blocked | error | auto: create or update the ruleset **by name**; a 403 asking for an upgrade → criterion 5 |
-| `actions.permissions` | default workflow token is read-only; Actions can't approve PRs | error | auto: `PUT /repos/{owner}/{repo}/actions/permissions/workflow` |
-| `security.dependabot` | vulnerability alerts and Dependabot security updates are on | error | auto: enable both |
-| `secret.claude` | `CLAUDE_CODE_OAUTH_TOKEN` exists and matches the Keychain token's age (see below) | error / warning | auto: set from Keychain; manual if the Keychain item is missing or expiring |
-| `secret.release` | with `release.yml` present: `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` exist | error | auto: set from Keychain items `release-app-id` and `release-app-key` |
-| `app.claude` | the Claude GitHub App is installed for the repo. `gh`'s login can't list app installations (GitHub only allows that for app tokens), so doctor checks indirectly: **pending** before any `ai-review` run, **pass** if the latest run didn't fail on authentication | warning | manual: link to github.com/apps/claude with "All repositories" |
+| ID                    | Checks                                                                                                                                                                                                                                                             | Severity        | Fix                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------- | ----------------------------------------------------------------------------------------- |
+| `gh.ready`            | `gh` is installed and logged in, and `origin` is a github.com repo you own                                                                                                                                                                                         | exit 2          | manual: `gh auth login`                                                                   |
+| `repo.merge`          | squash merge only; squash title = PR title, message = PR body; delete branch on merge                                                                                                                                                                              | error           | auto: `PATCH /repos/{owner}/{repo}`                                                       |
+| `repo.ruleset`        | ruleset `blueprint-main` on the default branch, no bypass actors, with: PR required (0 approvals, since you can't approve your own PRs), conversation resolution required, required check `ci / ci-ok` with up-to-date branches, force-push and deletion blocked   | error           | auto: create or update the ruleset **by name**; a 403 asking for an upgrade → criterion 5 |
+| `actions.permissions` | default workflow token is read-only; Actions can't approve PRs                                                                                                                                                                                                     | error           | auto: `PUT /repos/{owner}/{repo}/actions/permissions/workflow`                            |
+| `security.dependabot` | vulnerability alerts and Dependabot security updates are on                                                                                                                                                                                                        | error           | auto: enable both                                                                         |
+| `secret.claude`       | `CLAUDE_CODE_OAUTH_TOKEN` exists and matches the Keychain token's age (see below)                                                                                                                                                                                  | error / warning | auto: set from Keychain; manual if the Keychain item is missing or expiring               |
+| `secret.release`      | with `release.yml` present: `RELEASE_APP_ID` and `RELEASE_APP_PRIVATE_KEY` exist                                                                                                                                                                                   | error           | auto: set from Keychain items `release-app-id` and `release-app-key`                      |
+| `app.claude`          | the Claude GitHub App is installed for the repo. `gh`'s login can't list app installations (GitHub only allows that for app tokens), so doctor checks indirectly: **pending** before any `ai-review` run, **pass** if the latest run didn't fail on authentication | warning         | manual: link to github.com/apps/claude with "All repositories"                            |
 
 **About the GitHub Pro check:** doctor doesn't read your plan, because `gh`'s default login can't see it without an extra
 permission. Instead it creates or updates the ruleset, and treats GitHub's "upgrade" refusal as the signal. That's the
 exact failure that matters, and it needs no extra login scope.
 
 **Token age** (one Keychain token is copied into every repo, so a repo secret's own date says nothing about the token):
+
 - The setup guide saves the token with its creation date in the Keychain item's comment (`created:YYYY-MM-DD`).
 - **Warning** from 30 days before the token's one-year expiry: "create a new token with `claude setup-token`, save it, then run `blueprint doctor --fix` in each repo".
 - **Error** once it has expired.
@@ -104,7 +108,7 @@ the Keychain. Doctor decodes it in memory and sends the original PEM to `gh secr
 ## Output (DX rules)
 
 - **Success:** one line. Silent otherwise.
-- **Each failure:** `✗ <title>`, one line of *why it matters*, one line `→ <exact command or step>`. Grouped under **Errors**, **Warnings**, then **Pending**.
+- **Each failure:** `✗ <title>`, one line of _why it matters_, one line `→ <exact command or step>`. Grouped under **Errors**, **Warnings**, then **Pending**.
 - **`--fix`:** each change is listed as `fixed: <title>`, then the re-check result.
 - **No spinners or colors** when output isn't a terminal (CI, `--json`, pipes).
 
@@ -134,10 +138,10 @@ export type Severity = (typeof Severity)[keyof typeof Severity];
 export type Check = {
   readonly id: string;
   readonly title: string;
-  readonly scope: Scope;               // Scope.Local | Scope.GitHub
+  readonly scope: Scope; // Scope.Local | Scope.GitHub
   readonly severity: Severity;
   readonly run: (context: DoctorContext) => Promise<CheckResult>;
-  readonly fix?: (context: DoctorContext) => Promise<void>;   // absent = manual
+  readonly fix?: (context: DoctorContext) => Promise<void>; // absent = manual
 };
 ```
 
