@@ -126,13 +126,13 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] The required-list entry goes red, then the guide turns it green
-- [ ] Every `tsx` example has a path title; typechecking and linting them is recorded as deferred to `config-presets`
-- [ ] Links to Rules of React and You Might Not Need an Effect where those rules come from
+- [x] The required-list entry goes red, then the guide turns it green
+- [x] Every `tsx` example has a path title; typechecking and linting them is recorded as deferred to `config-presets`
+- [x] Links to Rules of React and You Might Not Need an Effect where those rules come from
 
 **Verification:**
 
-- [ ] Tests pass: `pnpm test`
+- [x] Tests pass: `pnpm test`
 
 **Dependencies:** Task 1
 
@@ -144,8 +144,8 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 ## Checkpoint A: guides written
 
-- [ ] All five guides pass the content tests
-- [ ] `pnpm lint && pnpm typecheck && pnpm test` green
+- [x] All five guides pass the content tests
+- [x] `pnpm lint && pnpm typecheck && pnpm test` green
 - [ ] You review the guides in the PR
 
 ---

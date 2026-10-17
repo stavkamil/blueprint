@@ -20,6 +20,7 @@ const REQUIRED_GUIDES: readonly string[] = [
   "testing.md",
   "structure.md",
   "workflow.md",
+  "react.md",
 ];
 
 const ALL_GUIDES = ["typescript.md", "testing.md", "structure.md", "workflow.md", "react.md"];
