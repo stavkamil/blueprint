@@ -21,7 +21,7 @@ describe("readPackageVersion", () => {
 
     const version = await readPackageVersion(url);
 
-    expect(version).toBe("1.2.3");
+    expect(version).toBe("9.9.9");
   });
 
   it("throws a BlueprintError with a hint when the version is missing", async () => {
