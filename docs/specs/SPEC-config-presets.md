@@ -2,6 +2,22 @@
 
 Module 3 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `repo-foundation` and `standards`.
 
+**As built (2026-10-17), differences from the design below:**
+
+- **Exports:** `@stavkamil/blueprint/eslint` exports only `ts` and `nextjs`. The building blocks stay internal until someone needs them.
+- **Two extra dependencies:**
+  - `eslint-import-resolver-typescript`, so boundaries can resolve `.ts` imports and the `@/` alias
+  - `eslint-plugin-jsx-a11y`, used only to read its recommended rule list; Next registers the plugin itself
+- **Barrels:** `barrel-files/avoid-re-export-all` is on too, since `export *` is a barrel the other rule doesn't count.
+- **Tests:** one table-driven test, `tests/presets.spec.ts`, replaces the `catalog-map.ts` + fixture files. Each lint-catalog rule is a row: a bad snippet plus the rule ID it must trigger. The test also covers:
+  - clean files that must pass
+  - every guide example, linted at its path
+  - enums failing to compile
+  - the Next.js composition and its typecheck
+  - the lefthook merge
+- **Not automated (lean):** the pre-commit timing and gitleaks-missing checks (criterion 7) are verified by hand on blueprint's own commits.
+- **Dev dependencies for the nextjs fixture:** `next`, `eslint-config-next`, `react`, `react-dom` and `@types/react`.
+
 ## Objective
 
 Ship the shared quality settings every blueprint project extends: ESLint, TypeScript, Prettier and lefthook.
