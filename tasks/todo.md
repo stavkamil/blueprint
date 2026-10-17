@@ -179,12 +179,12 @@ wire `tests/` into Vitest and tsconfig, and fix the mangled AGENTS block in the 
 
 **Acceptance criteria:**
 
-- [ ] `pnpm pack --dry-run` lists `standards/*.md`
-- [ ] `pnpm smoke` fails if a guide is missing from the tarball (spot-checked, then reverted)
+- [x] `pnpm pack --dry-run` lists `standards/*.md`
+- [x] `pnpm smoke` fails if a guide is missing from the tarball (spot-checked, then reverted)
 
 **Verification:**
 
-- [ ] Build succeeds: `pnpm smoke`
+- [x] Build succeeds: `pnpm smoke`
 
 **Dependencies:** Task 7
 

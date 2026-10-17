@@ -16,7 +16,8 @@
     "blueprint": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "standards"
   ],
   "publishConfig": {
     "access": "public"
