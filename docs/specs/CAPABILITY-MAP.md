@@ -29,12 +29,12 @@ Lean order (2026-10-17): each step is one PR.
 1. `config-presets`
 2. `ci-workflows`
 3. `project-template` + `cli-new` together: `blueprint new` creates a working project (GitHub repo creation included)
-4. `cli-doctor`, **v1 scope only**: what `new` needs to lock down GitHub (see SPEC-cli-doctor, "v1 scope")
+4. `cli-doctor`, **v1 scope only**: what `new` needs to lock down GitHub (see SPEC-cli-doctor, "v1 scope"), plus `new`'s secure and report steps and `--resume`
 5. `new-project-skill`
 
 → **First real release** once `pnpm dlx @stavkamil/blueprint@1 new` works. Until then the release PR stays open and collects changes.
 
-Done: `repo-foundation`, `standards`.
+Done: `repo-foundation`, `standards`, `config-presets`, `ci-workflows`, and `project-template` + `cli-new` (steps 0–6).
 
 ## Prerequisites (one time, by the user)
 

@@ -10,6 +10,7 @@ Module 6 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-tem
 - `secret.claude` and `secret.release`: the secret exists, set from the Keychain
 - the local check `hooks.installed`
 - `blueprint doctor` and `doctor --fix`, plus `runDoctor` for `cli-new`
+- moved here from the `project-template` + `cli-new` PR: `ownership`, `deriveTemplateOptions`, `blueprint new`'s steps 7–8 (secure, report) and `--resume`
 
 **Deferred until a real need shows up:**
 
