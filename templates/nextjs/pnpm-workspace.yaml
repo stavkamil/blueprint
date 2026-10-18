@@ -1,0 +1,6 @@
+# pnpm fails the install on build scripts that are neither allowed nor denied. These are safe to skip:
+# `prepare` installs the lefthook hooks, and unrs-resolver and sharp ship prebuilt binaries.
+allowBuilds:
+  lefthook: false
+  sharp: false
+  unrs-resolver: false

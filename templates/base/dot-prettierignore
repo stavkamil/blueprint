@@ -1,0 +1,5 @@
+dist/
+coverage/
+pnpm-lock.yaml
+# release-please writes the changelog in its own format.
+CHANGELOG.md

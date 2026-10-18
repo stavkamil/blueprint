@@ -1,0 +1,2 @@
+# Copy to .env and adjust. src/config/env.ts validates every variable listed here.
+LOG_LEVEL=info

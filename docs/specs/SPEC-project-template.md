@@ -5,6 +5,18 @@ Module 5 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `config-pres
 **Built together with `cli-new` in one PR** (lean order, 2026-10-17). `cli-new` uses `cli-doctor`'s v1 scope for securing GitHub.
 `cli-doctor` and `cli-new` depend on it.
 
+**As built (2026-10-18), differences from the design below:**
+
+- **Render options.** `renderTemplate` is async (it reads the template files) and takes two more options: `versions` (dependency ranges) and `pnpmVersion`. Each layer's `package.json` part marks blueprint-pinned dependencies `from-blueprint`, and the CLI fills them from blueprint's own `package.json`, so Dependabot bumps a tool version in one place. Dependency lists come out sorted.
+- **Template files.** Layers live in `templates/{base,ts,nextjs,release}`. Dotfiles are stored as `dot-<name>`, because npm drops some dotfiles (like `.gitignore`) from packages. Files that tools would load as live config inside blueprint's repo (`eslint.config.js`, `package.json`) end in `.tmpl`, which rendering strips. Placeholders are filled in every file, with no `.tmpl` suffix: `{{projectName}}`, `{{description}}`, `{{descriptionLiteral}}` (a quoted string for TypeScript), `{{blueprintVersion}}`, `{{blueprintMajor}}` and `{{importExtension}}`. Blueprint's own lint skips `templates/`; the end-to-end test lints the rendered projects instead.
+- **nextjs replaces instead of patching** create-next-app's `page.tsx`, `layout.tsx`, `tsconfig.json` and `.gitignore`. Its starter uses function declarations and Google Fonts, which need the network at build time. create-next-app 16.4 doesn't write `CLAUDE.md`, so the base layer writes it for both types. `typecheck` is `next typegen && tsc --noEmit`, so route types exist on a fresh clone.
+- **No `@testing-library/jest-dom`.** `vitest.setup.ts` only registers Testing Library's cleanup, and the starter test reads `textContent`.
+- **Claude settings.** The ask rules use `Edit(...)` only, because Claude Code ignores `Write(...)` path rules. `.env` reads are denied with `Read(.env*)` plus the carve-out `Read(!.env.example)`. The sandbox key is `sandbox.filesystem.denyWrite`. Claude Code's sandbox already protects `.claude/` and `.git/hooks`.
+- **`.env.example`** holds `LOG_LEVEL=info`, a non-secret default, so copying it to `.env` works.
+- **CI callers** carry one comment line each; the contract test (`tests/caller-contract.spec.ts`) ignores comments.
+- **Moved to `cli-doctor`:** `ownership` and `deriveTemplateOptions`, since only doctor reads them.
+- **End-to-end:** both types run in one `e2e` CI job on every PR (about 25 seconds), not a separate weekly job. Dependabot's weekly PRs re-run it against new create-next-app releases. Command: `pnpm test:e2e`.
+
 ## Objective
 
 Define every file a new project gets, once, at creation: the agent instructions, the quality configs that point at the

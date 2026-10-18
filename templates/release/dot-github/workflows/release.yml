@@ -1,0 +1,13 @@
+# Keeps a release PR open with the next version and changelog; merging it tags a GitHub release.
+name: release
+on:
+  push:
+    branches: [main]
+permissions: {}
+jobs:
+  release:
+    uses: stavkamil/blueprint/.github/workflows/reusable-release.yml@v{{blueprintMajor}}
+    permissions: { contents: read }
+    secrets:
+      RELEASE_APP_CLIENT_ID: ${{ secrets.RELEASE_APP_CLIENT_ID }}
+      RELEASE_APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}

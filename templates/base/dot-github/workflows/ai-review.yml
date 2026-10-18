@@ -1,0 +1,13 @@
+# Claude reviews each PR when it's opened or marked ready. To review again, re-run this workflow's latest run.
+name: ai-review
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+permissions: {}
+jobs:
+  review:
+    if: github.actor != 'dependabot[bot]' && !github.event.pull_request.draft
+    uses: stavkamil/blueprint/.github/workflows/reusable-ai-review.yml@v{{blueprintMajor}}
+    permissions: { contents: read, pull-requests: read, issues: read, id-token: write }
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}

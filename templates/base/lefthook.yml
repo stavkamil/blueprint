@@ -1,0 +1,3 @@
+# Git hooks shared by blueprint projects: format, lint and secret scan before commit; typecheck and tests before push.
+extends:
+  - node_modules/@stavkamil/blueprint/presets/lefthook/base.yml
