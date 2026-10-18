@@ -105,8 +105,20 @@ describe("runScaffold", () => {
 
     expect(result.ok).toBe(false);
     expect(result.steps.at(-1)).toEqual({ id: "create-repo", status: "failed" });
-    expect(result.problem?.hint).toContain("gh repo create demo --private");
+    expect(result.problem?.hint).toContain(
+      "gh repo create demo --private --description 'A demo project' --source . --push",
+    );
     expect(result.problem?.output).toBe("HTTP 403");
+  });
+
+  it("quotes an apostrophe in the description so the printed command still works", async () => {
+    const options = await makeScaffoldOptions();
+    const template = { ...options.template, description: "Ada's app" };
+    const { run } = makeFakeRunCommand({ "gh repo create": { exitCode: 1 } });
+
+    const result = await runScaffold({ ...options, template }, run);
+
+    expect(result.problem?.hint).toContain(String.raw`--description 'Ada'\''s app'`);
   });
 
   it.each([

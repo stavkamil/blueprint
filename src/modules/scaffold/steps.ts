@@ -17,6 +17,12 @@ import { writeProjectFiles } from "./write-project-files.ts";
 const issuesUrl = "https://github.com/stavkamil/blueprint/issues";
 const verifyScripts = ["lint", "typecheck", "test", "build"];
 
+const shellSafe = /^[\w@%+=:,./-]+$/u;
+
+/** Quotes an argument for a command the user copies into a shell; `runCommand` itself uses no shell. */
+const quoteForShell = (arg: string): string =>
+  shellSafe.test(arg) ? arg : `'${arg.replaceAll("'", String.raw`'\''`)}'`;
+
 const outputOf = (result: CommandResult): string => `${result.stdout}${result.stderr}`.trim();
 
 const keptFolder = (dir: string): string =>
@@ -90,7 +96,7 @@ const createRepo = async ({ options, dir, run }: StepContext): Promise<Problem |
   if (result.exitCode !== 0) {
     return {
       message: "Creating the GitHub repo failed.",
-      hint: `The project is committed locally at ${dir}. Check \`gh auth status\`, then create the repo from that folder: gh ${args.join(" ")}`,
+      hint: `The project is committed locally at ${dir}. Check \`gh auth status\`, then create the repo from that folder: gh ${args.map(quoteForShell).join(" ")}`,
       output: outputOf(result),
     };
   }
