@@ -15,29 +15,12 @@ concurrency:
 jobs:
   release-please:
     name: release-please
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions: {} # all writes go through the release app's token
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      major: ${{ steps.release.outputs.major }}
-      sha: ${{ steps.release.outputs.sha }}
-    steps:
-      - name: Create release app token
-        id: app-token
-        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
-        with:
-          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-          permission-contents: write # changelog, version bump, tags and releases
-          permission-pull-requests: write # open and update the release PR
-      - name: Run release-please
-        id: release
-        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          config-file: release-please-config.json
-          manifest-file: .release-please-manifest.json
+    # Blueprint releases itself with the same shared workflow its projects use, from this commit's copy.
+    uses: ./.github/workflows/reusable-release.yml # zizmor: ignore[self-repository] actionlint 1.7 rejects the $/ form
+    permissions: {}
+    secrets:
+      RELEASE_APP_CLIENT_ID: ${{ secrets.RELEASE_APP_CLIENT_ID }}
+      RELEASE_APP_PRIVATE_KEY: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
 
   publish:
     name: publish
