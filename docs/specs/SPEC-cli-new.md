@@ -1,6 +1,8 @@
 # Spec: cli-new
 
 Module 7 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-template` and `cli-doctor`.
+
+**Built together with `project-template` in one PR** (lean order, 2026-10-17). `cli-new` uses `cli-doctor`'s v1 scope for securing GitHub.
 `new-project-skill` depends on it.
 
 ## Objective

@@ -11,7 +11,7 @@ Scripts live in `package.json`. Before every commit: `pnpm lint && pnpm typechec
 ## Where work is defined
 
 - **Building or changing a module** → read its spec in `docs/specs/` (the index is `docs/specs/CAPABILITY-MAP.md`)
-  and its task list in `tasks/`. Update the spec first when a decision changes.
+  and the task list in its PR description. Update the spec first when a decision changes.
 
 ## Standards
 

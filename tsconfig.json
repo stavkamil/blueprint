@@ -1,19 +1,5 @@
 {
-  "compilerOptions": {
-    "target": "ES2024",
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "types": ["node"],
-    "strict": true,
-    "noUncheckedIndexedAccess": true,
-    "noImplicitOverride": true,
-    "noFallthroughCasesInSwitch": true,
-    "verbatimModuleSyntax": true,
-    "erasableSyntaxOnly": true,
-    "rewriteRelativeImportExtensions": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "noEmit": true
-  },
+  "extends": "./tsconfig/node.json",
+  "compilerOptions": { "noEmit": true },
   "include": ["src", "scripts", "tests", "*.config.ts"]
 }

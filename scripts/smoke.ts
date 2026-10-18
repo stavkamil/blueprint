@@ -28,6 +28,11 @@ try {
     "package/package.json",
     "package/dist/index.js",
     ...guides.map((guide) => `package/standards/${guide}.md`),
+    "package/presets/eslint/index.js",
+    "package/presets/prettier/index.js",
+    "package/presets/lefthook/base.yml",
+    "package/tsconfig/node.json",
+    "package/tsconfig/nextjs.json",
   ];
   const missing = required.filter((file) => !files.includes(file));
   if (missing.length > 0) {

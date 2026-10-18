@@ -2,6 +2,23 @@
 
 Module 6 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-template`. `cli-new` depends on it.
 
+## v1 scope (lean, decided 2026-10-17)
+
+**v1 builds only what `blueprint new` needs to lock down a fresh GitHub repo:**
+
+- the GitHub checks and fixes `gh.ready`, `repo.merge`, `repo.ruleset` (including the loud GitHub Pro failure), `actions.permissions` and `security.dependabot`
+- `secret.claude` and `secret.release`: the secret exists, set from the Keychain
+- the local check `hooks.installed`
+- `blueprint doctor` and `doctor --fix`, plus `runDoctor` for `cli-new`
+
+**Deferred until a real need shows up:**
+
+- the other local checks (`files.required` and adopting existing repos, `agents.block`, `agents.claude-md`, `docs.current`, `ci.callers`, `package.*`, `claude.settings`, `gitleaks.available`)
+- `app.claude`, token-age tracking, `--ci` and the CI doctor job, `--json`
+- `--local`, `--type` and `--description`
+
+The rest of this spec stays as the design those checks will follow when they're added.
+
 ## Objective
 
 `blueprint doctor` checks that a project still matches the blueprint setup, locally and on GitHub. `--fix` repairs

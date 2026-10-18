@@ -1,4 +1,5 @@
 #!/usr/bin/env node
 import { run } from "./commands/main.ts";
 
-process.exitCode = await run(process.argv.slice(2));
+const [, , ...args] = process.argv;
+process.exitCode = await run(args);

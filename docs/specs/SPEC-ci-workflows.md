@@ -61,7 +61,7 @@ resolve against the caller's checkout.
 - **`setup`:** checkout (`persist-credentials: false`), `pnpm/action-setup` (version from `packageManager`), `actions/setup-node` (version from `.nvmrc`, pnpm cache), `pnpm install --frozen-lockfile`.
 - **`gitleaks`:** downloads a pinned gitleaks release, verifies its checksum, and scans the PR's commit range. This works for personal and organization accounts alike, with no license key.
 
-**`doctor` job:** runs `pnpm exec blueprint doctor --ci` when the `doctor` input is true. `--ci` always exits 0 and reports problems as annotations, so the job never shows red. It is **not** a dependency of `ci-ok`. Blueprint itself passes `doctor: false`.
+**`doctor` job (deferred with doctor's `--ci`; see SPEC-cli-doctor's v1 scope, so the `doctor` input isn't added yet):** runs `pnpm exec blueprint doctor --ci` when the `doctor` input is true. `--ci` always exits 0 and reports problems as annotations, so the job never shows red. It is **not** a dependency of `ci-ok`. Blueprint itself passes `doctor: false`.
 
 **`ci-ok` aggregation:**
 

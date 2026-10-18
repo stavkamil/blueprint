@@ -1,6 +1,6 @@
-# Todo: standards
+# Todo: standards (done 2026-10-17; release deferred to the next milestone)
 
-Plan: [plan.md](plan.md). Spec: [SPEC-standards.md](../docs/specs/SPEC-standards.md).
+Plan: [standards-plan.md](standards-plan.md). Spec: [SPEC-standards.md](../../docs/specs/SPEC-standards.md).
 
 ---
 
