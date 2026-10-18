@@ -2,6 +2,15 @@
 
 Module 4 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `repo-foundation`. `project-template` depends on it.
 
+**As built (2026-10-18), differences from the design below:**
+
+- **No composite actions.** The setup and gitleaks steps are inlined in the reusable workflows. A composite action has to be referenced as `stavkamil/blueprint/.github/actions/…@v1`, which points at the _last release_, so blueprint's own CI couldn't test changes to it before releasing. Reusable workflows already share the logic.
+- **No `@claude review` comment trigger** (see criterion 5). The AI review caller only uses `pull_request` (`opened`, `ready_for_review`).
+- **`reusable-release.yml`:** no `release-type` input; projects keep `release-please-config.json`. It adds outputs `release_created`, `tag_name`, `major` and `sha`, which blueprint's own `release.yml` uses to publish.
+- **Same-repo references** (`uses: ./.github/workflows/…`) carry a `zizmor: ignore[self-repository]`, because the pinned actionlint 1.7 rejects GitHub's newer `$/` form.
+- **Deferred to the `project-template` + `cli-new` milestone,** where a real generated project exists: the fixture-project run (`working-directory`) and the live check on a throwaway repo (criterion 11).
+- **The AI review needs** the Claude GitHub App on the repo and a `CLAUDE_CODE_OAUTH_TOKEN` secret. Until both exist, the non-required `ai-review` run fails without blocking anything.
+
 ## Objective
 
 Provide the CI that every blueprint project runs, defined once in the blueprint repo and referenced by each project
@@ -31,7 +40,7 @@ reading results on GitHub Mobile.
 2. **Clear failures.** Each failing step prints one line saying what failed and the command that reproduces it locally (e.g. "Lint failed: run `pnpm lint`").
 3. **PR-title check.** A non-Conventional-Commit title fails with the expected format. Editing the title re-runs the check without a new push.
 4. **AI review once.** AI review runs when a PR is opened or marked ready, posts inline comments for important findings only (or one "no issues" summary comment), and never runs on drafts.
-5. **AI review on request.** Commenting `@claude review` on a PR, as a user with write access, re-runs the same review. Other comments neither start nor cancel a review.
+5. **AI review again on request.** Re-running the AI review workflow run (GitHub or GitHub Mobile) reviews the PR's current head. _(Changed while building: the `@claude review` comment trigger was dropped, because zizmor rates `issue_comment` a high-risk trigger.)_
 6. **Never blocks a merge.** AI review is skipped for Dependabot PRs, isn't part of `ci-ok`, and a review error never blocks merging.
 7. **Release (opt-in).** On push to `main`, release-please opens or updates a release PR using the release app's token, and `ci / ci-ok` runs on that PR. Merging it creates a tag, a GitHub release and a changelog entry.
 8. **Least privilege, hardened.**
@@ -95,15 +104,10 @@ name: ai-review
 on:
   pull_request:
     types: [opened, ready_for_review]
-  issue_comment:
-    types: [created]
 permissions: {}
 jobs:
   review:
-    if: >-
-      github.actor != 'dependabot[bot]' &&
-      ((github.event_name == 'pull_request' && !github.event.pull_request.draft) ||
-       (github.event.issue.pull_request && startsWith(github.event.comment.body, '@claude review')))
+    if: github.actor != 'dependabot[bot]' && !github.event.pull_request.draft
     uses: stavkamil/blueprint/.github/workflows/reusable-ai-review.yml@v1
     permissions: { contents: read, pull-requests: read, issues: read, id-token: write }
     secrets:
@@ -132,7 +136,7 @@ name in the ruleset.
 ## AI review details
 
 - **Action and plugin:** `anthropics/claude-code-action` (pinned SHA) with `plugin_marketplaces: https://github.com/anthropics/claude-code.git` and `plugins: code-review@claude-code-plugins`.
-- **Prompt:** `/code-review:code-review --comment <repo>/pull/<number>`. The action's default `@claude` mode isn't used: a plain `@claude` mention starts a general run, while `@claude review` starts this exact review.
+- **Prompt:** `/code-review:code-review --comment <repo>/pull/<number>`. The action's `@claude` mention mode isn't used.
 - **Allowed tools** are exactly what the plugin needs:
   - the inline-comment MCP tool
   - `Bash(gh pr view:*)`, `Bash(gh pr diff:*)`, `Bash(gh pr comment:*)`
@@ -142,14 +146,14 @@ name in the ruleset.
 - **What it judges against:**
   - The plugin reads `CLAUDE.md`. Every blueprint project's `CLAUDE.md` is `@AGENTS.md`, whose standards block points reviewers at `REVIEW.md` and `docs/standards/` (see SPEC-standards).
   - claude-code-action restores `CLAUDE.md` and `.claude/` from the base branch. `AGENTS.md` and `REVIEW.md` come from the PR itself. That's acceptable because only users with write access can trigger the review.
-- **Limits:** `--max-turns` input, `timeout-minutes: 20`, and **job-level** `concurrency` per PR inside the reusable workflow. Comments that don't match `@claude review` skip the job, so they never cancel a running review.
+- **Limits:** `--max-turns` input, `timeout-minutes: 20`, and `concurrency` per PR inside the reusable workflow, so a re-run replaces a review still in progress.
 - **No project code runs:** the job never runs `pnpm install` or project scripts while the token is present.
 
 ## Security posture
 
 - **Permissions:** top-level `permissions: {}` everywhere; each job gets only its row in the table above.
 - **Pinning:** third-party actions are pinned by full commit SHA with a version comment, and Dependabot (github-actions ecosystem) updates them. Blueprint's own workflows and actions use `@v<major>`, a tag only blueprint's release workflow moves. zizmor is configured to allow `stavkamil/blueprint/*@v*`.
-- **Triggers:** no `pull_request_target`. `issue_comment` runs only the review, only for users with write access (the action checks this), with read-only repository permissions.
+- **Triggers:** no `pull_request_target` and no `issue_comment`; the AI review runs only on `pull_request` events, with read-only repository permissions.
 - **Secrets:** passed by name to the one workflow that needs each. Full output logging (`show_full_output`) stays off.
 - **Untrusted input:** PR titles, bodies and comments never go straight into `run:` scripts. They pass through `env:` variables.
 

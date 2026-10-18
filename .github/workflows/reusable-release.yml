@@ -1,0 +1,54 @@
+# Shared release-please for blueprint projects created with --release. It opens and updates the release PR with the
+# release app's token, so CI runs on that PR. Projects keep release-please-config.json and .release-please-manifest.json.
+name: reusable-release
+
+on:
+  workflow_call:
+    secrets:
+      RELEASE_APP_CLIENT_ID:
+        required: true
+      RELEASE_APP_PRIVATE_KEY:
+        required: true
+    outputs:
+      release_created:
+        description: '"true" when this run created a release'
+        value: ${{ jobs.release-please.outputs.release_created }}
+      tag_name:
+        description: The created tag, e.g. v1.2.0
+        value: ${{ jobs.release-please.outputs.tag_name }}
+      major:
+        description: Major version of the created release
+        value: ${{ jobs.release-please.outputs.major }}
+      sha:
+        description: Commit the release points at
+        value: ${{ jobs.release-please.outputs.sha }}
+
+permissions: {}
+
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions: {} # all writes go through the release app's token
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      major: ${{ steps.release.outputs.major }}
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - name: Create release app token
+        id: app-token
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ secrets.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write # changelog, version bump, tags and releases
+          permission-pull-requests: write # open and update the release PR
+      - name: Run release-please
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

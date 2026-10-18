@@ -1,0 +1,22 @@
+# Blueprint's own AI review: the same shared workflow and triggers its projects get.
+# To review again after new pushes, re-run this workflow's latest run (GitHub or GitHub Mobile); it reviews the PR's
+# current head.
+name: ai-review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+permissions: {}
+
+jobs:
+  review:
+    if: github.actor != 'dependabot[bot]' && !github.event.pull_request.draft
+    uses: ./.github/workflows/reusable-ai-review.yml # zizmor: ignore[self-repository] actionlint 1.7 rejects the $/ form
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+    secrets:
+      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
