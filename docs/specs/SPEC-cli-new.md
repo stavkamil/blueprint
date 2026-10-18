@@ -5,6 +5,16 @@ Module 7 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-tem
 **Built together with `project-template` in one PR** (lean order, 2026-10-17). `cli-new` uses `cli-doctor`'s v1 scope for securing GitHub.
 `new-project-skill` depends on it.
 
+**As built (2026-10-18), differences from the design below:**
+
+- **Steps 0–6 are built:** preflight through "Create repo", and every flag except `--resume`. These arrive with `cli-doctor`: step 7 (secure with `runDoctor({ fix: true })`), step 8 (report), `--resume`, the Keychain preflight check, and the `resumable`, `doctor` and `manualSteps` JSON fields. Until then, a failed "Create repo" prints the exact `gh repo create` command to finish by hand.
+- **`--json`** prints `{ ok, project: { name, dir, type, url? }, steps: [{ id, status }], problems: [{ message, hint, output? }] }`.
+- **Exit code 2** also covers usage errors (unknown option, missing name or description), across the whole CLI: nothing was done.
+- **Install** runs `pnpm install --no-frozen-lockfile`, because CI environments default to a frozen lockfile and a new project has none.
+- **Layout:** the process runner is `src/lib/run-command.ts`, and the steps are one list in `src/modules/scaffold/steps.ts` rather than one file each.
+- **End-to-end** (`tests/e2e/new.spec.ts`) calls `runScaffold` directly with GitHub off, installing blueprint from the packed tarball (the published 1.0.0 predates the presets).
+- **Found by the end-to-end test:** the `ci.yml` caller contract put `${{ github.ref }}` inside a YAML flow map, which is invalid YAML. It's block style now (SPEC-ci-workflows updated).
+
 ## Objective
 
 `blueprint new` turns one command into a fully set-up project:

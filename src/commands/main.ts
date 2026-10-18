@@ -2,6 +2,7 @@ import { parseArgs } from "node:util";
 
 import { BlueprintError } from "../utils/errors.ts";
 import { readPackageVersion } from "../utils/version.ts";
+import { runNew } from "./new.ts";
 
 /** Where the CLI writes its output; injected so tests can capture it. */
 export type Io = {
@@ -12,7 +13,10 @@ export type Io = {
 const packageJsonUrl = new URL("../../package.json", import.meta.url);
 
 const usage = [
-  "Usage: blueprint [options]",
+  "Usage: blueprint <command> [options]",
+  "",
+  "Commands:",
+  '  new <name> --description "<one line>"  Create a project (blueprint new --help for options)',
   "",
   "Options:",
   "  --version  Print the installed blueprint version",
@@ -30,9 +34,16 @@ const processIo: Io = {
   },
 };
 
+/** Exit code for input blueprint refused before doing anything. */
+const exitRefused = 2;
+
 /** Parses CLI arguments, runs the matching action and returns the exit code instead of exiting, so it stays testable. */
 export const run = async (argv: readonly string[], io: Io = processIo): Promise<number> => {
   try {
+    const [first, ...rest] = argv;
+    if (first === "new") {
+      return await runNew(rest, io);
+    }
     const { values, positionals } = parseArgs({
       args: [...argv],
       options: { version: { type: "boolean" }, help: { type: "boolean" } },
@@ -54,7 +65,7 @@ export const run = async (argv: readonly string[], io: Io = processIo): Promise<
     if (error instanceof BlueprintError) {
       io.stderr(error.message);
       io.stderr(error.hint);
-      return 1;
+      return exitRefused;
     }
     if (
       error instanceof TypeError &&
@@ -64,7 +75,7 @@ export const run = async (argv: readonly string[], io: Io = processIo): Promise<
       const option = /'([^']+)'/u.exec(error.message)?.[1] ?? "option";
       io.stderr(`Unknown option '${option}'.`);
       io.stderr(helpHint);
-      return 1;
+      return exitRefused;
     }
     throw error;
   }

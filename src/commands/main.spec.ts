@@ -69,7 +69,7 @@ describe("run", () => {
 
     const exitCode = await run(["--nope"], io);
 
-    expect(exitCode).toBe(1);
+    expect(exitCode).toBe(2);
     expect(err).toEqual([
       "Unknown option '--nope'.",
       "Run `blueprint --help` to see what's available.",
@@ -81,7 +81,7 @@ describe("run", () => {
 
     const exitCode = await run(["launch"], io);
 
-    expect(exitCode).toBe(1);
+    expect(exitCode).toBe(2);
     expect(err.join("\n")).toContain("launch");
     expect(err.join("\n")).toContain("blueprint --help");
   });
