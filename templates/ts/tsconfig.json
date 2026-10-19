@@ -1,0 +1,5 @@
+{
+  "extends": "@stavkamil/blueprint/tsconfig/node.json",
+  "compilerOptions": { "noEmit": true },
+  "include": ["src", "*.config.ts"]
+}

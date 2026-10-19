@@ -1,0 +1,25 @@
+{
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.18" },
+  "scripts": {
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write . && eslint . --fix",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --coverage",
+    "prepare": "lefthook install"
+  },
+  "prettier": "@stavkamil/blueprint/prettier",
+  "dependencies": { "zod": "from-blueprint" },
+  "devDependencies": {
+    "@stavkamil/blueprint": "from-blueprint",
+    "@types/node": "from-blueprint",
+    "@vitest/coverage-v8": "from-blueprint",
+    "eslint": "from-blueprint",
+    "lefthook": "from-blueprint",
+    "prettier": "from-blueprint",
+    "typescript": "from-blueprint",
+    "vitest": "from-blueprint"
+  }
+}

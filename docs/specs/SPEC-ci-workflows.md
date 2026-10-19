@@ -91,7 +91,9 @@ on:
   push:
     branches: [main]
 permissions: {}
-concurrency: { group: ci-${{ github.ref }}, cancel-in-progress: true }
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   ci:
     uses: stavkamil/blueprint/.github/workflows/reusable-checks.yml@v1

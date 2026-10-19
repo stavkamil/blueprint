@@ -1,4 +1,5 @@
-# Blueprint's own CI: the shared checks (reusable-checks.yml), plus the package smoke test and workflow linters.
+# Blueprint's own CI: the shared checks (reusable-checks.yml), plus the package smoke test, the end-to-end
+# `blueprint new` projects and the workflow linters.
 # The required check is `ci-ok`.
 name: ci
 
@@ -46,6 +47,45 @@ jobs:
       - name: Run smoke test
         run: pnpm smoke || { echo "::error title=Smoke test failed::Run 'pnpm smoke' locally."; exit 1; }
 
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - name: Install gitleaks (pinned, checksum-verified; new projects' commit hook needs it)
+        run: |
+          set -euo pipefail
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSLo "$archive" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archive}"
+          echo "${GITLEAKS_SHA256}  ${archive}" | sha256sum --check --strict
+          mkdir -p "$HOME/.local/bin"
+          tar -xzf "$archive" -C "$HOME/.local/bin" gitleaks
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Set a git identity for the projects' initial commits
+        run: |
+          git config --global user.name "blueprint e2e"
+          git config --global user.email "e2e@blueprint.invalid"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Create ts and nextjs projects and run their checks
+        run: pnpm test:e2e || { echo "::error title=End-to-end failed::Run 'pnpm test:e2e' locally."; exit 1; }
+
   workflows-lint:
     name: workflows-lint
     runs-on: ubuntu-latest
@@ -78,7 +118,7 @@ jobs:
   ci-ok:
     name: ci-ok
     if: always()
-    needs: [checks, smoke, workflows-lint]
+    needs: [checks, smoke, e2e, workflows-lint]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions: {}

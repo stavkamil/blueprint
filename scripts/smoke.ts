@@ -33,13 +33,22 @@ try {
     "package/presets/lefthook/base.yml",
     "package/tsconfig/node.json",
     "package/tsconfig/nextjs.json",
+    "package/templates/base/AGENTS.md",
+    "package/templates/base/dot-gitignore",
+    "package/templates/base/package.json.tmpl",
+    "package/templates/base/dot-github/workflows/ci.yml",
+    "package/templates/nextjs/src/app/page.spec.tsx",
+    "package/templates/ts/src/index.spec.ts",
   ];
   const missing = required.filter((file) => !files.includes(file));
   if (missing.length > 0) {
     fail(`tarball is missing ${missing.join(", ")}`);
   }
+  // Template spec files are starter tests for new projects; blueprint's own specs stay out.
   const unexpected = files.filter(
-    (file) => file.startsWith("package/src/") || file.includes(".spec."),
+    (file) =>
+      file.startsWith("package/src/") ||
+      (file.includes(".spec.") && !file.startsWith("package/templates/")),
   );
   if (unexpected.length > 0) {
     fail(`tarball contains source or test files: ${unexpected.join(", ")}`);
