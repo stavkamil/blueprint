@@ -10,7 +10,11 @@ import { Visibility } from "./types.ts";
 
 const repoUrl = "https://github.com/ada/demo";
 const noRemote = { "git remote get-url": { exitCode: 2 } };
-const repoCreated = { ...noRemote, "gh repo create": { stdout: `${repoUrl}\n` } };
+// What gh really prints with --push: the URL, then git's output.
+const repoCreated = {
+  ...noRemote,
+  "gh repo create": { stdout: `${repoUrl}\nbranch 'main' set up to track 'origin/main'.\n` },
+};
 
 describe("runScaffold", () => {
   it("runs every step in order and returns the repo URL", async () => {

@@ -73,6 +73,9 @@ const commit = async ({ options, dir, run }: StepContext): Promise<Problem | und
   return committed.exitCode === 0 ? undefined : commandFailed("git commit", committed, dir);
 };
 
+/** gh prints the new repo's URL first, then git's push output. */
+const repoUrlLine = /^https:\/\/github\.com\//u;
+
 const toRepoUrl = (remote: string): string => remote.trim().replace(/\.git$/u, "");
 
 /** Creates the repo and pushes, or, when `origin` already exists (a resumed run), only pushes. */
@@ -109,7 +112,10 @@ const createRepo = async ({ options, dir, run }: StepContext): Promise<Problem |
   }
   return origin.exitCode === 0
     ? toRepoUrl(origin.stdout)
-    : (result.stdout.trim().split("\n").at(-1) ?? "");
+    : (result.stdout
+        .split("\n")
+        .find((line) => repoUrlLine.test(line))
+        ?.trim() ?? "");
 };
 
 const never = (): boolean => false;
