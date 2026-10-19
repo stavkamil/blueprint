@@ -1,7 +1,11 @@
 import type { CommandResult, RunCommand } from "../run-command.ts";
 
 /** One call the fake received. */
-export type RecordedCall = { readonly command: string; readonly cwd: string | undefined };
+export type RecordedCall = {
+  readonly command: string;
+  readonly cwd: string | undefined;
+  readonly input: string | undefined;
+};
 
 /** A {@link RunCommand} fake plus the calls it received, as `"program arg arg"` strings. */
 export type FakeRunCommand = { readonly run: RunCommand; readonly calls: RecordedCall[] };
@@ -19,7 +23,7 @@ export const makeFakeRunCommand = (
   const calls: RecordedCall[] = [];
   const run: RunCommand = (command, args, options = {}) => {
     const line = [command, ...args].join(" ");
-    calls.push({ command: line, cwd: options.cwd });
+    calls.push({ command: line, cwd: options.cwd, input: options.input });
     const match = Object.entries(responses).findLast(([prefix]) => line.startsWith(prefix));
     return Promise.resolve({ ...success, ...match?.[1] });
   };
