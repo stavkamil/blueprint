@@ -9,7 +9,8 @@ import { makeScaffoldOptions } from "./testing/make-scaffold-options.ts";
 import { Visibility } from "./types.ts";
 
 const repoUrl = "https://github.com/ada/demo";
-const repoCreated = { "gh repo create": { stdout: `${repoUrl}\n` } };
+const noRemote = { "git remote get-url": { exitCode: 2 } };
+const repoCreated = { ...noRemote, "gh repo create": { stdout: `${repoUrl}\n` } };
 
 describe("runScaffold", () => {
   it("runs every step in order and returns the repo URL", async () => {
@@ -30,6 +31,7 @@ describe("runScaffold", () => {
       "pnpm build",
       "git add --all",
       "git commit --message chore: initial commit from blueprint v1.2.3",
+      "git remote get-url origin",
       "gh repo create demo --private --description A demo project --source . --push",
     ]);
     expect(calls.every((call) => call.cwd === result.dir)).toBe(true);
@@ -95,9 +97,10 @@ describe("runScaffold", () => {
     expect(calls.at(-1)?.command).toContain("--public");
   });
 
-  it("explains how to finish by hand when creating the repo fails", async () => {
+  it("keeps the local commit and asks to resume when creating the repo fails", async () => {
     const options = await makeScaffoldOptions();
     const { run } = makeFakeRunCommand({
+      ...noRemote,
       "gh repo create": { exitCode: 1, stderr: "HTTP 403" },
     });
 
@@ -105,20 +108,24 @@ describe("runScaffold", () => {
 
     expect(result.ok).toBe(false);
     expect(result.steps.at(-1)).toEqual({ id: "create-repo", status: "failed" });
-    expect(result.problem?.hint).toContain(
-      "gh repo create demo --private --description 'A demo project' --source . --push",
-    );
-    expect(result.problem?.output).toBe("HTTP 403");
+    expect(result.problem).toMatchObject({
+      message: "Creating the GitHub repo failed.",
+      hint: expect.stringContaining("then resume") as string,
+      output: "HTTP 403",
+    });
   });
 
-  it("quotes an apostrophe in the description so the printed command still works", async () => {
+  it("only pushes when origin already exists, as in a resumed run", async () => {
     const options = await makeScaffoldOptions();
-    const template = { ...options.template, description: "Ada's app" };
-    const { run } = makeFakeRunCommand({ "gh repo create": { exitCode: 1 } });
+    const { run, calls } = makeFakeRunCommand({
+      "git remote get-url": { stdout: "https://github.com/ada/demo.git\n" },
+    });
 
-    const result = await runScaffold({ ...options, template }, run);
+    const result = await runScaffold(options, run);
 
-    expect(result.problem?.hint).toContain(String.raw`--description 'Ada'\''s app'`);
+    expect(calls.at(-1)?.command).toBe("git push --set-upstream origin main");
+    expect(calls.some((call) => call.command.startsWith("gh repo create"))).toBe(false);
+    expect(result.url).toBe("https://github.com/ada/demo");
   });
 
   it.each([
