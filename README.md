@@ -9,9 +9,13 @@ and from your phone.
 
 ## Use
 
+Do the [one-time setup](docs/setup.md), then type `/new-project` in Claude Code, or run:
+
 ```bash
-pnpm dlx @stavkamil/blueprint@1 --help
+pnpm dlx @stavkamil/blueprint@1 new my-app --description "What it does" --type ts
 ```
+
+[Working from your phone](docs/phone.md) covers the Claude app and GitHub Mobile.
 
 ## How it's built
 
