@@ -34,7 +34,7 @@ Lean order (2026-10-17): each step is one PR.
 
 → **First real release** once `pnpm dlx @stavkamil/blueprint@1 new` works. Until then the release PR stays open and collects changes.
 
-Done: `repo-foundation`, `standards`, `config-presets`, `ci-workflows`, `project-template` + `cli-new`, and `cli-doctor` v1.
+Done: every module (`repo-foundation`, `standards`, `config-presets`, `ci-workflows`, `project-template` + `cli-new`, `cli-doctor` v1, `new-project-skill`). Next: the manual checks in SPEC-new-project-skill, then the first real release.
 
 ## Prerequisites (one time, by the user)
 

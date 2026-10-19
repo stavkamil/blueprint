@@ -2,6 +2,15 @@
 
 Module 8 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `cli-new`.
 
+**As built (2026-10-19), differences from the design below:**
+
+- **The command passes `--dir ~/Projects`** instead of running from `~/Projects`, so the skill doesn't depend on the session's working folder.
+- **The skill reads its arguments through `$ARGUMENTS`** and reports `problems` (`message`, `hint`) from the JSON on failure.
+- **Phone guide:** fixes come from Auto-fix or the session, and a second review from re-running `ai-review`. The `@claude …` comment trigger was dropped in `ci-workflows` (zizmor rates `issue_comment` high risk).
+- **Cloud setup script finalized:** Node 24 from nodejs.org, checked against its `SHASUMS256.txt`, and gitleaks 8.30.1, pinned and checksum-verified (the same pin as CI). The checksum lookup was tested against nodejs.org; the full script still needs one run in a real cloud environment (setup check 7).
+- **The guard test** (`tests/skill.spec.ts`) compares the skill's flags with `blueprint new --help` rather than parsing `cli-new`'s options.
+- **Still manual before the first release:** the three `/new-project` runs, the setup checks, and the phone tasks (criteria 2, 3, 5, 7 and 8).
+
 ## Objective
 
 Give you two things:
@@ -117,7 +126,7 @@ Short sections, each tied to a task:
 - **Start or steer work:** Claude app → Code → a cloud session or Project on the repo. Work continues with your laptop closed. Answer questions and approvals inside the session or thread that asks.
 - **Use your Mac from the phone:** sessions on the Mac appear in the Claude app (Remote Control, set up in step 8). This is how to run `/new-project` from the phone. The Mac must be awake.
 - **Get told when something needs you:** GitHub Mobile with notifications set to _Participating_ plus _Pull requests_ and _failed workflows_ for your repos. A PR from an agent arrives as a notification.
-- **Review and merge:** open the PR in GitHub Mobile, read the AI review and the CI result, resolve threads, and merge (squash). Ask for fixes by commenting `@claude …` or by turning on Auto-fix in the Claude app.
+- **Review and merge:** open the PR in GitHub Mobile, read the AI review and the CI result, resolve threads, and merge (squash). Ask for fixes by turning on Auto-fix in the Claude app or by replying in the session.
 - **What only works on the Mac:** creating projects (the Keychain and `gh` live there), and running `blueprint doctor --fix`.
 
 ## Project Structure
