@@ -2,6 +2,7 @@ import { parseArgs } from "node:util";
 
 import { BlueprintError } from "../utils/errors.ts";
 import { readPackageVersion } from "../utils/version.ts";
+import { runDoctorCommand } from "./doctor.ts";
 import { runNew } from "./new.ts";
 
 /** Where the CLI writes its output; injected so tests can capture it. */
@@ -17,6 +18,7 @@ const usage = [
   "",
   "Commands:",
   '  new <name> --description "<one line>"  Create a project (blueprint new --help for options)',
+  "  doctor [--fix]                          Check this project's setup, and repair it with --fix",
   "",
   "Options:",
   "  --version  Print the installed blueprint version",
@@ -43,6 +45,9 @@ export const run = async (argv: readonly string[], io: Io = processIo): Promise<
     const [first, ...rest] = argv;
     if (first === "new") {
       return await runNew(rest, io);
+    }
+    if (first === "doctor") {
+      return await runDoctorCommand(rest, io);
     }
     const { values, positionals } = parseArgs({
       args: [...argv],

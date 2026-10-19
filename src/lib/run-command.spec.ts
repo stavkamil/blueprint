@@ -16,6 +16,14 @@ describe("runCommand", () => {
     expect(result.stderr).toBe("bad\n");
   });
 
+  it("sends input on stdin", async () => {
+    const result = await runCommand("node", ["-e", "process.stdin.pipe(process.stdout)"], {
+      input: "secret",
+    });
+
+    expect(result.stdout).toBe("secret");
+  });
+
   it("reports a missing program as exit code 127", async () => {
     const result = await runCommand("blueprint-no-such-program", []);
 

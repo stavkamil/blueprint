@@ -1,16 +1,18 @@
-import { mkdtemp } from "node:fs/promises";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { makeFakeRunCommand } from "../lib/testing/fake-run-command.ts";
+import type { DoctorResult } from "../modules/doctor/types.ts";
 import type { Problem } from "../modules/scaffold/types.ts";
 import type { Io } from "./main.ts";
-import { runNew } from "./new.ts";
+import { type NewEnvironment, runNew } from "./new.ts";
 
 const ready = {
   "pnpm --version": { stdout: "12.11.2\n" },
+  "git remote get-url": { exitCode: 2 },
   "git config user.name": { stdout: "Ada\n" },
   "git config user.email": { stdout: "ada@example.com\n" },
   "gh repo view": { exitCode: 1, stderr: "Could not resolve to a Repository" },
@@ -34,13 +36,47 @@ const makeIo = (): { readonly out: string[]; readonly err: string[]; readonly io
   };
 };
 
+const secured: DoctorResult = {
+  ok: true,
+  isLocalOnly: false,
+  checks: [],
+  fixed: ["Merge settings"],
+};
+
+const needsPro: DoctorResult = {
+  ok: false,
+  isLocalOnly: false,
+  fixed: [],
+  checks: [
+    {
+      id: "repo.ruleset",
+      name: "Ruleset blueprint-main",
+      status: "fail",
+      title: "GitHub refused the ruleset",
+      why: "Agents could push to main.",
+      action: "Upgrade to GitHub Pro, then run blueprint doctor --fix",
+    },
+  ],
+};
+
 const makeEnvironment = async (
   responses: Parameters<typeof makeFakeRunCommand>[0] = ready,
-): Promise<Parameters<typeof runNew>[2] & ReturnType<typeof makeFakeRunCommand>> => ({
-  ...makeFakeRunCommand(responses),
-  cwd: await mkdtemp(join(tmpdir(), "blueprint-new-")),
-  nodeVersion: "24.1.0",
-});
+  doctor: DoctorResult = secured,
+): Promise<
+  NewEnvironment & ReturnType<typeof makeFakeRunCommand> & { readonly securedDirs: string[] }
+> => {
+  const securedDirs: string[] = [];
+  return {
+    ...makeFakeRunCommand(responses),
+    cwd: await mkdtemp(join(tmpdir(), "blueprint-new-")),
+    nodeVersion: "24.1.0",
+    securedDirs,
+    secure: (dir) => {
+      securedDirs.push(dir);
+      return Promise.resolve(doctor);
+    },
+  };
+};
 
 describe("runNew", () => {
   it("prints its options for --help", async () => {
@@ -76,7 +112,9 @@ describe("runNew", () => {
     const exitCode = await runNew(["demo", "--description", "A demo"], io, environment);
 
     expect(exitCode).toBe(0);
-    expect(out.slice(0, 6).every((line) => line.startsWith("✓ "))).toBe(true);
+    expect(out.slice(0, 7).every((line) => line.startsWith("✓ "))).toBe(true);
+    expect(out[6]).toContain("Secured the repo");
+    expect(environment.securedDirs).toEqual([join(environment.cwd, "demo")]);
     expect(out).toContain("Repo: https://github.com/ada/demo");
     expect(out).toContain(`Next: cd ${join(environment.cwd, "demo")} && claude`);
   });
@@ -131,6 +169,8 @@ describe("runNew", () => {
       problems: [],
     });
     expect(result.steps).toContainEqual({ id: "create-repo", status: "done" });
+    expect(result.steps).toContainEqual({ id: "secure", status: "done" });
+    expect(result).toMatchObject({ resumable: false, manualSteps: [] });
   });
 
   it("prints refusals as JSON too", async () => {
@@ -157,5 +197,97 @@ describe("runNew", () => {
     expect(exitCode).toBe(1);
     expect(err[0]).toContain("`pnpm lint` failed on the fresh project");
     expect(err).toContain("src/x.ts:1 error");
+  });
+
+  it("doesn't secure anything with --no-github", async () => {
+    const { out, io } = makeIo();
+    const environment = await makeEnvironment();
+
+    await runNew(["demo", "--description", "A demo", "--no-github", "--json"], io, environment);
+
+    const result = JSON.parse(out[0] ?? "") as { readonly steps: readonly unknown[] };
+    expect(environment.securedDirs).toEqual([]);
+    expect(result.steps).toContainEqual({ id: "secure", status: "skipped" });
+  });
+
+  it("lists the manual steps and the resume command when securing needs you", async () => {
+    const { err, out, io } = makeIo();
+    const environment = await makeEnvironment(ready, needsPro);
+
+    const exitCode = await runNew(["demo", "--description", "A demo"], io, environment);
+    await runNew(["other", "--description", "A demo", "--json"], io, environment);
+
+    expect(exitCode).toBe(1);
+    expect(err.join("\n")).toContain("GitHub refused the ruleset");
+    expect(err.at(-1)).toBe("  → blueprint new demo --resume");
+    expect(JSON.parse(out.at(-1) ?? "")).toMatchObject({
+      ok: false,
+      resumable: true,
+      manualSteps: ["Upgrade to GitHub Pro, then run blueprint doctor --fix"],
+      resumeCommand: "blueprint new other --resume",
+    });
+  });
+
+  it("marks a failed repo creation as resumable, naming --dir when it isn't the current folder", async () => {
+    const { err, io } = makeIo();
+    const environment = await makeEnvironment({ ...ready, "gh repo create": { exitCode: 1 } });
+
+    const exitCode = await runNew(
+      ["demo", "--description", "A demo", "--dir", "my projects"],
+      io,
+      environment,
+    );
+
+    expect(exitCode).toBe(1);
+    expect(err.at(-1)).toBe(
+      `  → blueprint new demo --resume --dir '${join(environment.cwd, "my projects")}'`,
+    );
+  });
+
+  it("resumes a committed project: pushes, then secures", async () => {
+    const { io } = makeIo();
+    const environment = await makeEnvironment({
+      ...ready,
+      "git remote get-url": { stdout: "https://github.com/ada/demo.git\n" },
+    });
+    await mkdir(join(environment.cwd, "demo"));
+    await writeFile(
+      join(environment.cwd, "demo", "package.json"),
+      JSON.stringify({ name: "demo", description: "A demo" }),
+    );
+
+    const exitCode = await runNew(["demo", "--resume"], io, environment);
+
+    expect(exitCode).toBe(0);
+    expect(environment.calls.map((call) => call.command)).toContain(
+      "git push --set-upstream origin main",
+    );
+    expect(environment.calls.some((call) => call.command.startsWith("pnpm install"))).toBe(false);
+    expect(environment.securedDirs).toEqual([join(environment.cwd, "demo")]);
+  });
+
+  it("refuses to resume where there's no project", async () => {
+    const { err, io } = makeIo();
+    const environment = await makeEnvironment();
+
+    const exitCode = await runNew(["demo", "--resume"], io, environment);
+
+    expect(exitCode).toBe(2);
+    expect(err[0]).toContain("Nothing to resume");
+  });
+
+  it("refuses to resume a folder with no commit", async () => {
+    const { err, io } = makeIo();
+    const environment = await makeEnvironment({ ...ready, "git rev-parse": { exitCode: 128 } });
+    await mkdir(join(environment.cwd, "demo"));
+    await writeFile(
+      join(environment.cwd, "demo", "package.json"),
+      JSON.stringify({ name: "demo" }),
+    );
+
+    const exitCode = await runNew(["demo", "--resume"], io, environment);
+
+    expect(exitCode).toBe(2);
+    expect(err[0]).toContain("no committed blueprint project");
   });
 });

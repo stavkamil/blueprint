@@ -7,6 +7,7 @@ import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { runCommand } from "../../src/lib/run-command.ts";
+import { runDoctor } from "../../src/modules/doctor/run-doctor.ts";
 import { runScaffold } from "../../src/modules/scaffold/run-scaffold.ts";
 import { Visibility } from "../../src/modules/scaffold/types.ts";
 import { readDependencyRanges } from "../../src/utils/read-dependency-ranges.ts";
@@ -77,5 +78,8 @@ describe.each([ProjectType.Ts, ProjectType.Nextjs])("blueprint new --type %s", (
     const agents = await readFile(join(result.dir, "AGENTS.md"), "utf8");
     expect(agents).toContain("<!-- BEGIN:blueprint-standards -->");
     expect(agents.includes("<!-- BEGIN:nextjs-agent-rules -->")).toBe(type === ProjectType.Nextjs);
+
+    const doctor = await runDoctor({ dir: result.dir, fix: false, run: runCommand });
+    expect(doctor).toMatchObject({ ok: true, isLocalOnly: true });
   });
 });

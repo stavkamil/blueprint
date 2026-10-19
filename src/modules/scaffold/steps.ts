@@ -17,12 +17,6 @@ import { writeProjectFiles } from "./write-project-files.ts";
 const issuesUrl = "https://github.com/stavkamil/blueprint/issues";
 const verifyScripts = ["lint", "typecheck", "test", "build"];
 
-const shellSafe = /^[\w@%+=:,./-]+$/u;
-
-/** Quotes an argument for a command the user copies into a shell; `runCommand` itself uses no shell. */
-const quoteForShell = (arg: string): string =>
-  shellSafe.test(arg) ? arg : `'${arg.replaceAll("'", String.raw`'\''`)}'`;
-
 const outputOf = (result: CommandResult): string => `${result.stdout}${result.stderr}`.trim();
 
 const keptFolder = (dir: string): string =>
@@ -79,28 +73,49 @@ const commit = async ({ options, dir, run }: StepContext): Promise<Problem | und
   return committed.exitCode === 0 ? undefined : commandFailed("git commit", committed, dir);
 };
 
+/** gh prints the new repo's URL first, then git's push output. */
+const repoUrlLine = /^https:\/\/github\.com\//u;
+
+const toRepoUrl = (remote: string): string => remote.trim().replace(/\.git$/u, "");
+
+/** Creates the repo and pushes, or, when `origin` already exists (a resumed run), only pushes. */
 const createRepo = async ({ options, dir, run }: StepContext): Promise<Problem | string> => {
+  const origin = await run("git", ["remote", "get-url", "origin"], { cwd: dir });
   const { projectName, description } = options.template;
-  const args = [
-    "repo",
-    "create",
-    projectName,
-    `--${options.visibility}`,
-    "--description",
-    description,
-    "--source",
-    ".",
-    "--push",
-  ];
-  const result = await run("gh", args, { cwd: dir });
+  const result =
+    origin.exitCode === 0
+      ? await run("git", ["push", "--set-upstream", "origin", "main"], { cwd: dir })
+      : await run(
+          "gh",
+          [
+            "repo",
+            "create",
+            projectName,
+            `--${options.visibility}`,
+            "--description",
+            description,
+            "--source",
+            ".",
+            "--push",
+          ],
+          { cwd: dir },
+        );
   if (result.exitCode !== 0) {
     return {
-      message: "Creating the GitHub repo failed.",
-      hint: `The project is committed locally at ${dir}. Check \`gh auth status\`, then create the repo from that folder: gh ${args.map(quoteForShell).join(" ")}`,
+      message:
+        origin.exitCode === 0
+          ? "Pushing main to GitHub failed."
+          : "Creating the GitHub repo failed.",
+      hint: `The project is committed locally at ${dir}. Check \`gh auth status\` and your network, then resume.`,
       output: outputOf(result),
     };
   }
-  return result.stdout.trim().split("\n").at(-1) ?? "";
+  return origin.exitCode === 0
+    ? toRepoUrl(origin.stdout)
+    : (result.stdout
+        .split("\n")
+        .find((line) => repoUrlLine.test(line))
+        ?.trim() ?? "");
 };
 
 const never = (): boolean => false;

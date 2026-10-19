@@ -4,7 +4,7 @@ Sets up an agent-first SDLC and CI/CD environment for new TypeScript projects: s
 hooks, CI with AI review, protected branches and releases, ready for coding agents working locally, in the cloud
 and from your phone.
 
-> **Status:** in development. `blueprint new` ships in the next release, followed by `doctor`; see the
+> **Status:** in development. `blueprint new` and `blueprint doctor` ship in the next release; see the
 > [capability map](docs/specs/CAPABILITY-MAP.md).
 
 ## Use

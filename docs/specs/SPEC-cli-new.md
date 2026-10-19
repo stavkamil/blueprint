@@ -7,8 +7,9 @@ Module 7 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-tem
 
 **As built (2026-10-18), differences from the design below:**
 
-- **Steps 0–6 are built:** preflight through "Create repo", and every flag except `--resume`. These arrive with `cli-doctor`: step 7 (secure with `runDoctor({ fix: true })`), step 8 (report), `--resume`, the Keychain preflight check, and the `resumable`, `doctor` and `manualSteps` JSON fields. Until then, a failed "Create repo" prints the exact `gh repo create` command to finish by hand.
-- **`--json`** prints `{ ok, project: { name, dir, type, url? }, steps: [{ id, status }], problems: [{ message, hint, output? }] }`.
+- **All steps and flags are built** (step 7–8 and `--resume` landed with `cli-doctor` v1). Step 8 is the re-check `runDoctor({ fix: true })` already does, so `new` runs doctor once. The Keychain isn't checked in preflight: a missing item becomes a manual step from doctor, and `--resume` finishes the run afterwards.
+- **`--resume`** reads the options back with `deriveTemplateOptions`, refuses (exit 2) without a committed project, then runs only "Create repo" and "Secure". "Create repo" is idempotent: when `origin` exists it only pushes.
+- **`--json`** prints `{ ok, resumable, project: { name, dir, type, url? }, steps: [{ id, status }], problems: [{ message, hint, output? }], doctor?, manualSteps, resumeCommand? }`. The resume command adds `--dir` when the parent folder isn't the current one.
 - **Exit code 2** also covers usage errors (unknown option, missing name or description), across the whole CLI: nothing was done.
 - **Install** runs `pnpm install --no-frozen-lockfile`, because CI environments default to a frozen lockfile and a new project has none.
 - **Layout:** the process runner is `src/lib/run-command.ts`, and the steps are one list in `src/modules/scaffold/steps.ts` rather than one file each.
