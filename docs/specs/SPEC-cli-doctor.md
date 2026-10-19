@@ -20,6 +20,16 @@ Module 6 of 8 in [CAPABILITY-MAP.md](CAPABILITY-MAP.md). Depends on `project-tem
 
 The rest of this spec stays as the design those checks will follow when they're added.
 
+**As built (2026-10-19), differences from the design below:**
+
+- **Every v1 check is an error,** so there's no severity field yet; it returns with the first warning-level check. Statuses are `pass`, `fail` and `skipped` (`secret.release` without a release workflow; GitHub checks without a GitHub remote).
+- **Secrets:** v1 checks that each secret exists and sets missing ones from the Keychain. Token-age tracking stays deferred. When a Keychain item is missing, the fix is the exact `security add-generic-password … -w` command; a bare `-w` makes `security` prompt, so the value stays out of shell history.
+- **`--json` is built** (`{ ok, blocked?, isLocalOnly, checks: [{ id, name, status, title?, why?, action? }], fixed }`), because `blueprint new --json` returns the same object.
+- **Ruleset comparison** checks that GitHub's ruleset contains every expected value; fields GitHub adds on its own (e.g. `require_extra_approval_for_unattributed_changes`) don't count as drift. Checked against blueprint's own live ruleset.
+- **Layout:** `src/lib/gh-api.ts` (`gh api`, bodies on stdin), `src/lib/keychain.ts`, and `src/modules/doctor/` with one file per check under `checks/`. Tests run against a stateful fake GitHub, so each fix is followed by a real re-check, and a second `--fix` asserts zero writes.
+- **`ownership` stays deferred** with `files.required` and `docs.current`, the checks that need it.
+- **Never on blueprint itself:** blueprint's ruleset requires `ci-ok` (its own top-level job), so `doctor --fix` there would block merges. AGENTS.md says so.
+
 ## Objective
 
 `blueprint doctor` checks that a project still matches the blueprint setup, locally and on GitHub. `--fix` repairs

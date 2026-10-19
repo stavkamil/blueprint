@@ -36,6 +36,7 @@ Everything else is enforced: run `pnpm lint`.
 - **Changes reach `main` through a reviewed PR.** Releases come from CI, except the npm publish step, which is
   manual until npm/cli#9969 is fixed (see `docs/maintainer-setup.md`).
 - **Never:**
+  - run `blueprint doctor --fix` on this repo: its ruleset requires `ci-ok`, not a project's `ci / ci-ok`, and the fix would block every merge
   - commit secrets, tokens or `.npmrc` credentials
   - push to `main`
   - edit `dist/`
